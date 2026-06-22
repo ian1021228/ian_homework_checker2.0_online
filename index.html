@@ -89,6 +89,7 @@
                      
                      <button id="intro-btn" class="bg-white border border-slate-200 text-slate-600 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">網站介紹</button>
                      <button id="show-types-modal-btn" class="bg-white border border-slate-200 text-orange-500 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-orange-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">作業種類</button>
+                     <button id="manage-barcodes-btn" class="bg-white border border-slate-200 text-blue-500 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">設定條碼</button>
                      <button id="contact-book-btn" class="bg-white border border-slate-200 text-purple-600 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-purple-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">聯絡簿</button>
                      <button id="student-details-btn" class="bg-white border border-slate-200 text-emerald-600 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-emerald-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">學生詳情</button>
                      <button id="manage-classes-btn" class="bg-white border border-slate-200 text-slate-500 font-bold py-2.5 px-4 rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">管理班級</button>
@@ -462,6 +463,18 @@
         </div>
     </div>
     
+    <!-- 條碼設定 Modal -->
+    <div id="manage-barcodes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
+        <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar">
+            <h2 class="text-2xl font-extrabold mb-2 text-slate-900">設定學生條碼</h2>
+            <p class="text-sm text-slate-500 mb-6">請將游標停留在輸入框中並使用掃描器掃描，或手動輸入對應條碼。<br>未綁定的座號若收到純數字條碼，系統預設會將其視為對應座號處理。</p>
+            <div id="barcode-list" class="space-y-3 mb-6"></div>
+            <div class="flex justify-end pt-5 mt-5 border-t border-slate-100">
+                <button type="button" class="cancel-btn bg-slate-100 text-slate-600 font-bold py-2.5 px-6 rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 管理班級 Modal -->
     <div id="manage-classes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
          <div class="modal-content bg-white rounded-2xl shadow-2xl p-8 w-full max-w-md transform scale-95 border border-slate-100">
@@ -834,6 +847,63 @@
         
         confirmOk.addEventListener('click', confirmHandler); 
         confirmCancel.addEventListener('click', cancelHandler);
+    }
+
+    function playBeep() {
+        try {
+            const AudioContext = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContext) return;
+            const ctx = new AudioContext();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(800, ctx.currentTime);
+            gain.gain.setValueAtTime(0.1, ctx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.1);
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.1);
+        } catch(e) {}
+    }
+
+    function renderBarcodeManagement() {
+        const barcodeList = document.getElementById('barcode-list');
+        if(!barcodeList) return;
+        barcodeList.innerHTML = '';
+        if(!currentClassId) {
+            barcodeList.innerHTML = '<p class="text-slate-400 font-bold text-center">請先選擇班級</p>';
+            return;
+        }
+        const currentClass = appData.classes.find(c => c.id === currentClassId);
+        if(!currentClass) return;
+        if(!currentClass.studentBarcodes) currentClass.studentBarcodes = {};
+
+        const classHws = appData.homeworks.filter(h => h.classId === currentClassId);
+        let maxSeat = currentClass.lastMaxSeat || 0;
+        classHws.forEach(h => {
+            (h.students || []).forEach(s => maxSeat = Math.max(maxSeat, s.seat));
+        });
+        if(maxSeat === 0) maxSeat = 30; 
+
+        for(let i = 1; i <= maxSeat; i++) {
+            const row = document.createElement('div');
+            row.className = 'flex items-center gap-3 bg-slate-50 p-2 rounded-xl border border-slate-200/40';
+            const val = currentClass.studentBarcodes[i] || '';
+            row.innerHTML = `
+                <span class="w-12 text-center font-bold text-slate-700 bg-slate-200/50 rounded-lg py-1">${i} 號</span>
+                <input type="text" class="barcode-input flex-grow bg-white border border-slate-200 rounded-lg p-1.5 focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 text-sm font-mono" placeholder="掃描或輸入條碼" data-seat="${i}" value="${val}">
+            `;
+            barcodeList.appendChild(row);
+        }
+
+        barcodeList.querySelectorAll('.barcode-input').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const seat = parseInt(e.target.dataset.seat);
+                currentClass.studentBarcodes[seat] = e.target.value.trim();
+                saveData();
+            });
+        });
     }
 
     function checkAndCleanupStorage() {
@@ -1337,6 +1407,7 @@
         bindClick('student-details-btn', () => showStudentDetailsPage());
         bindClick('contact-book-btn', () => showContactBookPage());
         bindClick('show-types-modal-btn', () => showHomeworkTypesPage());
+        bindClick('manage-barcodes-btn', () => { renderBarcodeManagement(); openModal(document.getElementById('manage-barcodes-modal')); });
         bindClick('data-management-btn', () => { updateDataManagementUI(); openModal(document.getElementById('data-management-modal')); });
 
         bindClick('back-to-main-btn', () => {
@@ -1715,18 +1786,56 @@
         // 條碼掃描器通常以 Enter 鍵結尾
         if (e.key === 'Enter') {
             if (barcodeBuffer.length > 0) {
-                const seatStr = barcodeBuffer;
+                const scanStr = barcodeBuffer;
                 barcodeBuffer = ''; // 清空 buffer
                 
-                const seat = parseInt(seatStr, 10);
-                if (!isNaN(seat)) {
-                    const studentBtn = document.getElementById(`btn-seat-${seat}`);
-                    if (studentBtn) {
-                        studentBtn.click(); // 模擬點擊該座號按鈕
-                        showToast(`掃描成功：${seat} 號`, 'success');
-                    } else {
-                        showToast(`掃描失敗：找不到座號 ${seat}`, 'error');
+                const currentClass = appData.classes.find(c => c.id === currentClassId);
+                let seat = null;
+                
+                // 1. 查找綁定紀錄
+                if(currentClass && currentClass.studentBarcodes) {
+                    for(let s in currentClass.studentBarcodes) {
+                        if(currentClass.studentBarcodes[s] === scanStr) {
+                            seat = parseInt(s, 10);
+                            break;
+                        }
                     }
+                }
+                
+                // 2. 找不到綁定，如果是純數字則當作座號
+                if (seat === null && !isNaN(parseInt(scanStr, 10))) {
+                    seat = parseInt(scanStr, 10);
+                }
+
+                if (seat !== null) {
+                    const hw = appData.homeworks.find(h => h.id === currentHomeworkId);
+                    if (hw && hw.students) {
+                        const studentIndex = hw.students.findIndex(s => s.seat === seat);
+                        if (studentIndex !== -1) {
+                            const student = hw.students[studentIndex];
+                            const typeConfig = getHomeworkType(hw.typeId);
+                            // 尋找第一個標記為完成的狀態
+                            const completedStatus = typeConfig.statuses.find(s => s.isCompleted);
+                            
+                            if (completedStatus && student.status !== completedStatus.key) {
+                                const oldStatus = student.status;
+                                hw.students[studentIndex].status = completedStatus.key;
+                                updateSingleStudentUI(seat, oldStatus, completedStatus.key, typeConfig);
+                                updateSummaryUI(hw);
+                                saveData();
+                                playBeep();
+                                showToast(`掃描成功：${seat} 號已完成`, 'success');
+                            } else {
+                                // 如果已經是完成狀態，依然給予成功回饋
+                                playBeep();
+                                showToast(`${seat} 號 已經繳交過囉`, 'info');
+                            }
+                        } else {
+                            showToast(`掃描失敗：名單中沒有座號 ${seat}`, 'error');
+                        }
+                    }
+                } else {
+                    showToast(`掃描失敗：無法辨識條碼 ${scanStr}`, 'error');
                 }
             }
         } else {
