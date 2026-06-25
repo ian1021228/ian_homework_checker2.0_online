@@ -74,7 +74,6 @@
     <!-- 首頁 Main Page -->
     <div id="main-page" class="container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 hidden page-section">
         <header class="flex flex-col gap-6 mb-10">
-            <!-- ✨ 完美還原截圖的排版：採用 flex-wrap 自然佈局 -->
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 w-full">
                 <!-- 左側：標題與班級選單 -->
                 <div class="flex items-center gap-4 flex-shrink-0">
@@ -82,7 +81,7 @@
                      <select id="class-selector" class="rounded-xl border-slate-200/80 shadow-sm shadow-slate-100/50 focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 text-base bg-white font-extrabold text-indigo-600 cursor-pointer transition-all"></select>
                 </div>
                 
-                <!-- 右側：功能按鈕列 (精確還原比例) -->
+                <!-- 右側：功能按鈕列 -->
                 <div class="flex flex-wrap justify-start xl:justify-end items-center gap-3 w-full xl:w-auto">
                      <button id="install-pwa-btn" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-lg shadow-pink-500/10 hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">⬇️ 安裝 App</button>
                      
@@ -536,7 +535,7 @@
 <!-- 改為 module 模組化載入，整合 Firebase SDK -->
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let fbApp, fbAuth, fbDb;
@@ -557,13 +556,6 @@
         fbApp = initializeApp(firebaseConfig);
         fbAuth = getAuth(fbApp);
         fbDb = getFirestore(fbApp);
-        
-        getRedirectResult(fbAuth).then((result) => {
-            if (result) window.showToast("✅ Google 帳號登入成功！", "success");
-        }).catch((error) => {
-            console.error("Redirect login error:", error);
-            window.showAlertModal("登入被阻擋或失敗", "錯誤細節：" + error.message + "\n\n💡 必做檢查：請確定您已在 Firebase 控制台的 Authentication -> Settings -> Authorized domains 加入您的網域 (ian1021228.github.io)。");
-        });
 
         onAuthStateChanged(fbAuth, async (user) => {
             currentUser = user;
@@ -1409,10 +1401,18 @@
             try {
                 const provider = new GoogleAuthProvider();
                 provider.setCustomParameters({ prompt: 'select_account' });
-                await signInWithRedirect(fbAuth, provider);
+                window.showToast("正在開啟登入視窗...", "info");
+                const result = await signInWithPopup(fbAuth, provider);
+                if (result && result.user) {
+                    window.showToast("✅ Google 帳號登入成功！", "success");
+                }
             } catch (error) {
                 console.error("Login failed", error);
-                window.showAlertModal("登入被阻擋或失敗", "無法完成 Google 登入：" + error.message);
+                if (error.code === 'auth/popup-closed-by-user') {
+                    window.showToast("已取消登入", "info");
+                } else {
+                    window.showAlertModal("登入被阻擋或失敗", "無法完成 Google 登入：" + error.message);
+                }
             }
         });
 
