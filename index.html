@@ -537,9 +537,9 @@
 
 <!-- 改為 module 模組化載入，整合 Firebase SDK -->
 <script type="module">
-    // ✨ 修改：改回使用 signInWithPopup 來避免跨網域跳轉的授權遺失問題
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    // ✨ 修復：將 signInWithRedirect 與 getRedirectResult 加回匯入清單中
+    import { getAuth, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     let fbApp, fbAuth, fbDb;
@@ -562,6 +562,14 @@
         fbApp = initializeApp(firebaseConfig);
         fbAuth = getAuth(fbApp);
         fbDb = getFirestore(fbApp);
+
+        // ✨ 新增：處理跳轉回來的結果與錯誤
+        getRedirectResult(fbAuth).then((result) => {
+            if (result) window.showToast("✅ Google 帳號登入成功！", "success");
+        }).catch((error) => {
+            console.error("Redirect login error:", error);
+            window.showAlertModal("登入被阻擋或失敗", "錯誤細節：" + error.message + "\n\n💡 必做檢查：請確定您已在 Firebase 控制台的 Authentication -> Settings -> Authorized domains 加入您的網域。");
+        });
 
         onAuthStateChanged(fbAuth, async (user) => {
             currentUser = user;
