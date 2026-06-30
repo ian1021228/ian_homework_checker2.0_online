@@ -62,6 +62,22 @@
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden">
 
+    <!-- 系統廣播橫幅 (管理員推播用) -->
+    <div id="system-banner" class="hidden mx-auto max-w-2xl bg-amber-500/95 backdrop-blur-xl text-white px-5 py-3 rounded-b-2xl justify-between items-center text-sm z-[95] fixed top-0 left-4 right-4 shadow-2xl border border-amber-400 shadow-amber-500/20">
+        <span id="system-banner-msg" class="font-bold tracking-wide flex items-center gap-2">
+            <svg class="w-5 h-5 animate-pulse flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path></svg>
+            <span></span>
+        </span>
+        <button id="system-banner-close" class="bg-amber-600/80 text-white px-3 py-1.5 rounded-lg font-bold hover:bg-amber-700 transition-all text-xs border border-amber-400 flex-shrink-0">我知道了</button>
+    </div>
+
+    <!-- 終極鎖定畫面 -->
+    <div id="system-lock-screen" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[99999] flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="text-6xl mb-6 shadow-2xl animate-pulse">🔒</div>
+        <h1 class="text-3xl font-black text-white mb-4">您已被管理員暫時鎖定</h1>
+        <p class="text-slate-300 font-medium max-w-md leading-relaxed text-sm">系統偵測到異常操作或合約到期，您的帳號目前暫時被凍結。<br>請聯繫系統管理員 ianw.solar@gmail.com 協助解鎖。</p>
+    </div>
+
     <!-- 頂部同步列 -->
     <div id="sync-banner" class="hidden mx-auto max-w-xl bg-slate-950/85 backdrop-blur-xl text-white px-5 py-3 rounded-2xl justify-between items-center text-sm z-[90] fixed top-4 left-4 right-4 shadow-2xl border border-white/10 animate-bounce">
         <span class="font-bold tracking-wide flex items-center gap-1.5">
@@ -86,6 +102,9 @@
                 
                 <!-- 右側：功能按鈕列 -->
                 <div class="flex flex-wrap justify-start xl:justify-end items-center gap-3 w-full xl:w-auto">
+                     <!-- ✨ 後台管理按鈕 (限定 ianw.solar@gmail.com) -->
+                     <button id="admin-btn" class="hidden bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">🛡️ 管理後台</button>
+
                      <button id="install-pwa-btn" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-lg shadow-pink-500/10 hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">⬇️ 安裝 App</button>
                      
                      <button id="intro-btn" class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">網站介紹</button>
@@ -95,7 +114,7 @@
                      <button id="set-barcodes-btn" class="bg-white border border-slate-200 text-blue-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">🏷️ 條碼設定</button>
                      <button id="manage-classes-btn" class="bg-white border border-slate-200 text-slate-500 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">管理班級</button>
                      
-                     <!-- ✨ 新增的設定按鈕取代原本的資料管理 -->
+                     <!-- 設定按鈕取代原本的資料管理 -->
                      <button id="settings-btn" class="bg-white border border-slate-200 text-slate-700 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                          設定
@@ -147,7 +166,7 @@
                 <span class="text-xs text-slate-400 ml-auto hidden sm:block font-medium">※ 將一鍵改變全班所有座號的作業狀態</span>
             </div>
 
-            <!-- ✨ 點收模式切換與掃描區塊 -->
+            <!-- 點收模式切換與掃描區塊 -->
             <div id="check-mode-section" class="mt-4 bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col w-full transition-all">
                 <!-- 模式切換按鈕 -->
                 <div class="flex bg-slate-100/80 p-1.5 gap-1.5">
@@ -261,6 +280,39 @@
         </div>
     </div>
 
+    <!-- ✨ 系統管理中心 (Admin) Modal -->
+    <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[100] opacity-0">
+        <div class="modal-content bg-white rounded-3xl shadow-2xl p-0 w-full max-w-5xl transform scale-95 h-[85vh] flex flex-col border border-slate-100 overflow-hidden">
+            <div class="bg-slate-900 px-6 py-4 flex justify-between items-center flex-shrink-0">
+                <h2 class="text-xl font-extrabold text-white flex items-center gap-3">
+                    <span class="text-amber-400">🛡️</span> 系統管理中心
+                </h2>
+                <button class="cancel-btn text-slate-400 hover:text-white transition-colors bg-slate-800 p-2 rounded-full hover:bg-slate-700">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </div>
+            <div class="flex-grow p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
+                <p class="text-sm font-bold text-slate-500 mb-4 flex items-center gap-2"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>此處列出所有已註冊且同步過的用戶雲端資料庫狀態與用量。</p>
+                <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <table class="w-full text-left border-collapse min-w-max">
+                        <thead>
+                            <tr class="bg-slate-100 text-slate-600 text-xs uppercase tracking-wider">
+                                <th class="p-3 font-bold border-b border-slate-200">用戶 / Email</th>
+                                <th class="p-3 font-bold border-b border-slate-200 hidden sm:table-cell">最後同步時間</th>
+                                <th class="p-3 font-bold border-b border-slate-200">主檔空間</th>
+                                <th class="p-3 font-bold border-b border-slate-200">控管狀態</th>
+                                <th class="p-3 font-bold border-b border-slate-200 text-right">系統管理操作</th>
+                            </tr>
+                        </thead>
+                        <tbody id="admin-users-list" class="divide-y divide-slate-100 text-sm">
+                            <!-- 動態插入 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- 網站介紹 Modal -->
     <div id="intro-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 hidden modal z-[100] opacity-0">
         <div class="modal-content bg-white rounded-3xl shadow-2xl shadow-slate-900/40 p-0 w-full max-w-3xl transform scale-95 max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
@@ -282,10 +334,9 @@
         </div>
     </div>
 
-    <!-- ✨ 歡迎與偏好選擇視窗 (精靈模式) -->
+    <!-- 歡迎與偏好選擇視窗 (精靈模式) -->
     <div id="welcome-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[100] opacity-0">
         <div class="modal-content bg-white rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-lg transform scale-95 border border-slate-100 relative overflow-hidden">
-            
             <!-- Step 1: 儲存方式 -->
             <div id="welcome-step-1" class="text-center sm:text-left transition-all duration-300">
                 <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 mx-auto sm:mx-0">
@@ -336,18 +387,16 @@
                 
                 <button id="welcome-finish-btn" class="w-full bg-indigo-600 text-white font-bold py-3.5 px-6 text-sm rounded-xl shadow-lg hover:bg-indigo-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled>完成並開始使用</button>
             </div>
-            
         </div>
     </div>
 
-    <!-- ✨ 系統設定 Modal (原資料管理) -->
+    <!-- 系統設定 Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
         <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar relative">
            <h2 class="text-2xl font-extrabold mb-6 text-slate-900">系統設定</h2>
            
            <div class="space-y-4">
-               
-               <!-- 👆 點收模式設定區塊 -->
+               <!-- 點收模式設定區塊 -->
                <div class="p-5 border border-purple-100 rounded-xl bg-purple-50/50 shadow-sm relative overflow-hidden">
                    <h3 class="font-bold text-purple-900 mb-3 flex items-center gap-1.5 relative z-10">👆 點收模式設定</h3>
                    <div class="flex gap-2 relative z-10">
@@ -357,7 +406,7 @@
                    <p class="text-[11px] text-purple-700 mt-2 font-medium relative z-10">切換至手動點收將隱藏畫面上的條碼按鈕與掃描輸入框，讓版面更清爽。</p>
                </div>
 
-               <!-- ☁️ 雲端同步區塊 -->
+               <!-- 雲端同步區塊 -->
                <div class="p-5 border border-sky-100 rounded-xl bg-sky-50/50 shadow-sm relative overflow-hidden">
                    <div class="absolute top-0 right-0 p-3 opacity-10"><svg class="w-16 h-16 text-sky-600" fill="currentColor" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96z"></path></svg></div>
                    <h3 class="font-bold text-sky-900 mb-2 flex items-center gap-1.5 relative z-10">☁️ Firebase 雲端備份</h3>
@@ -393,7 +442,7 @@
                    </div>
                </div>
 
-               <!-- 💾 本地硬碟自動儲存 -->
+               <!-- 本地硬碟自動儲存 -->
                <div class="p-5 border border-indigo-100 rounded-xl bg-indigo-50/50 shadow-sm">
                    <h3 class="font-bold text-indigo-900 mb-2 flex items-center gap-1.5">💾 本地硬碟自動儲存</h3>
                    <div id="current-file-status" class="text-sm text-indigo-700 mb-4 font-bold leading-relaxed">狀態：未綁定本地檔案</div>
@@ -594,13 +643,13 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence, collection, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
+    let unsubProfile = null; // 用於監聽全局使用者的管理員狀態
     const globalAppId = typeof __app_id !== 'undefined' ? __app_id : 'homework-checker-pro';
     
-    // ✨ 關鍵邏輯：在系統啟動時判斷是否為無資料狀態
     let isLocalEmptyOnBoot = !localStorage.getItem('homeworkAppData');
 
     try {
@@ -619,7 +668,6 @@
 
         enableIndexedDbPersistence(fbDb).catch(err => console.warn("Offline DB unavailable", err));
 
-        // ✨ 處理登入跳轉返回結果
         getRedirectResult(fbAuth).then(async (result) => {
             if (result && result.user) {
                 window.showToast("✅ Google 帳號登入成功！", "success");
@@ -647,11 +695,27 @@
             currentUser = user;
             updateDataManagementUI();
             
-            // 處理一般網頁重新整理時的登入狀態
-            if (user && isLocalEmptyOnBoot && localStorage.getItem('hasSeenWelcome_final')) {
-                window.showToast("⏳ 正在從雲端同步您的資料...", "info");
-                const hasData = await loadDataFromCloud(true);
-                if (hasData) isLocalEmptyOnBoot = false; 
+            if (user) {
+                // 🛡️ Admin Check
+                if (user.email === 'ianw.solar@gmail.com') {
+                    document.getElementById('admin-btn')?.classList.remove('hidden');
+                } else {
+                    document.getElementById('admin-btn')?.classList.add('hidden');
+                }
+
+                // 啟動管理員推播監聽器與用戶分析寫入
+                await syncUserProfile();
+                listenToProfile();
+
+                // 處理一般網頁重新整理時的登入狀態
+                if (isLocalEmptyOnBoot && localStorage.getItem('hasSeenWelcome_final')) {
+                    window.showToast("⏳ 正在從雲端同步您的資料...", "info");
+                    const hasData = await loadDataFromCloud(true);
+                    if (hasData) isLocalEmptyOnBoot = false; 
+                }
+            } else {
+                document.getElementById('admin-btn')?.classList.add('hidden');
+                if (unsubProfile) unsubProfile();
             }
         });
     } catch(err) {
@@ -663,7 +727,7 @@
         const container = document.getElementById('toast-container');
         if (!container) return;
         const toast = document.createElement('div');
-        toast.className = `transform translate-y-4 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl shadow-lg border text-sm font-bold z-[100] ${
+        toast.className = `transform translate-y-4 opacity-0 transition-all duration-300 flex items-center gap-2.5 px-4 py-2.5 rounded-2xl shadow-lg border text-sm font-bold z-[110] ${
             type === 'success' ? 'bg-emerald-50 text-emerald-800 border-emerald-100' :
             type === 'error' ? 'bg-rose-50 text-rose-800 border-rose-100' :
             'bg-slate-900 text-white border-slate-800'
@@ -707,7 +771,6 @@
     let blackboardFontSize = parseFloat(localStorage.getItem('hw_pref_fontSize')) || 1.25;
     let blackboardLineHeight = parseFloat(localStorage.getItem('hw_pref_lineHeight')) || 1.75;
     
-    // ✨ 點收模式全域變數 (scan 或 manual)
     let currentCheckMode = localStorage.getItem('checkMode') || null;
 
     let currentPage = 'main-page', scrollPositions = {};
@@ -725,7 +788,7 @@
         if (document.visibilityState === 'visible' && fileHandle && !isSaving) { try { if ((await fileHandle.queryPermission({ mode: 'read' })) === 'granted') await syncFromFileHandleSilently(); } catch (e) {} }
     });
 
-    // ✨ 應用點收模式的函式
+    // ✨ 應用點收模式
     function applyCheckMode(mode) {
         currentCheckMode = mode;
         localStorage.setItem('checkMode', mode);
@@ -741,7 +804,6 @@
             if (checkModeSection) checkModeSection.classList.remove('hidden');
         }
         
-        // 更新設定 Modal 內的按鈕樣式
         const manualBtn = document.getElementById('setting-mode-manual-btn');
         const scanBtn = document.getElementById('setting-mode-scan-btn');
         if (manualBtn && scanBtn) {
@@ -752,6 +814,187 @@
                 scanBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm transition-all ring-2 ring-indigo-500/20";
                 manualBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all";
             }
+        }
+    }
+
+    // 🛡️ 系統控管監聽器 (即時捕捉管理員操作)
+    function listenToProfile() {
+        if (!currentUser || !fbDb) return;
+        const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+        unsubProfile = onSnapshot(userProfileRef, (docSnap) => {
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                
+                // 🔒 1. 處理鎖定防禦機制
+                const lockScreen = document.getElementById('system-lock-screen');
+                if (data.isLocked) {
+                    if (lockScreen) lockScreen.classList.remove('hidden');
+                } else {
+                    if (lockScreen) lockScreen.classList.add('hidden');
+                }
+
+                // 📢 2. 處理系統廣播橫幅
+                if (data.bannerActive && data.bannerMessage && data.bannerId) {
+                    const dismissed = localStorage.getItem('dismissed_banner_' + data.bannerId);
+                    if (!dismissed) {
+                        const banner = document.getElementById('system-banner');
+                        document.querySelector('#system-banner-msg span').textContent = "📢 系統公告：" + data.bannerMessage;
+                        banner.classList.remove('hidden');
+                        banner.classList.add('flex');
+                        document.getElementById('system-banner-close').onclick = () => {
+                            banner.classList.add('hidden');
+                            banner.classList.remove('flex');
+                            localStorage.setItem('dismissed_banner_' + data.bannerId, 'true');
+                        };
+                    }
+                }
+
+                // ⚠️ 3. 處理強制遠端重置指令
+                if (data.forceReset) {
+                    performRemoteReset();
+                }
+            }
+        }, (error) => {
+            console.error("Profile listen error:", error);
+        });
+    }
+
+    // 🛡️ 紀錄使用者佔用與上線時間
+    async function syncUserProfile() {
+        if (!currentUser || !fbDb) return;
+        try {
+            const fullBytes = new Blob([JSON.stringify(appData)]).size;
+            const currentDataSizeKB = (fullBytes / 1024).toFixed(1);
+            
+            const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+            await setDoc(userProfileRef, {
+                email: currentUser.email,
+                displayName: currentUser.displayName || currentUser.email,
+                lastActive: new Date().toISOString(),
+                dataSizeKB: currentDataSizeKB
+            }, { merge: true });
+        } catch(err) {
+            console.error("syncUserProfile err", err);
+        }
+    }
+
+    // ⚠️ 執行遠端重置
+    async function performRemoteReset() {
+        appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(JSON.stringify(DEFAULT_TYPES)) };
+        localStorage.setItem('homeworkAppData', JSON.stringify(appData));
+        
+        if (currentUser && fbDb) {
+            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
+            await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
+            
+            const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+            await updateDoc(userProfileRef, { forceReset: false }); // 標記已完成重置
+        }
+        
+        const lockScreen = document.getElementById('system-lock-screen');
+        if (lockScreen) {
+            lockScreen.innerHTML = `<div class="text-6xl mb-6 shadow-2xl">⚠️</div><h1 class="text-3xl font-black text-white mb-4">資料已重置</h1><p class="text-slate-300 font-medium">系統已完成資料強制重置作業。</p>`;
+            lockScreen.classList.remove('hidden');
+        }
+        setTimeout(() => window.location.reload(), 2000);
+    }
+
+    // 🛡️ 管理員專用：讀取全局用戶清單
+    async function loadAllUsersForAdmin() {
+        if (currentUser?.email !== 'ianw.solar@gmail.com') return;
+        const usersList = document.getElementById('admin-users-list');
+        usersList.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500 font-bold">📡 正在載入全球伺服器資料...</td></tr>';
+        
+        try {
+            const usersRef = collection(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles');
+            const snapshot = await getDocs(usersRef);
+            usersList.innerHTML = '';
+            
+            if (snapshot.empty) {
+                usersList.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500 font-bold">無任何用戶資料。</td></tr>';
+                return;
+            }
+
+            snapshot.forEach(docSnap => {
+                const data = docSnap.data();
+                const id = docSnap.id;
+                
+                const isLocked = data.isLocked || false;
+                const statusHtml = isLocked 
+                    ? '<span class="bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-black shadow-sm">🔴 已凍結</span>'
+                    : '<span class="bg-emerald-100 text-emerald-600 px-2 py-1 rounded-lg text-xs font-black shadow-sm">🟢 正常</span>';
+                    
+                const lastActive = data.lastActive ? new Date(data.lastActive).toLocaleString('zh-TW', { month: 'short', day: 'numeric', hour: '2-digit', minute:'2-digit'}) : '未知';
+                const size = data.dataSizeKB ? `${data.dataSizeKB} KB` : '未知';
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="p-3 border-b border-slate-100">
+                        <div class="font-black text-slate-800 text-base">${data.displayName}</div>
+                        <div class="text-[11px] font-bold text-slate-400 mt-0.5">${data.email}</div>
+                    </td>
+                    <td class="p-3 border-b border-slate-100 text-xs font-bold text-slate-500 hidden sm:table-cell">${lastActive}</td>
+                    <td class="p-3 border-b border-slate-100 text-xs font-black text-indigo-600">${size}</td>
+                    <td class="p-3 border-b border-slate-100">${statusHtml}</td>
+                    <td class="p-3 border-b border-slate-100 text-right space-x-1 whitespace-nowrap">
+                        <button class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors toggle-lock-btn shadow-sm" data-id="${id}" data-locked="${isLocked}">
+                            ${isLocked ? '🔓 解鎖' : '🔒 鎖定'}
+                        </button>
+                        <button class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors send-banner-btn shadow-sm" data-id="${id}">
+                            📢 廣播
+                        </button>
+                        <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors force-reset-btn shadow-sm" data-id="${id}">
+                            ⚠️ 重置
+                        </button>
+                    </td>
+                `;
+                usersList.appendChild(tr);
+            });
+
+            // 綁定管理操作事件
+            document.querySelectorAll('.toggle-lock-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const currentlyLocked = e.target.dataset.locked === 'true';
+                    try {
+                        await updateDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', id), { isLocked: !currentlyLocked });
+                        loadAllUsersForAdmin();
+                    } catch(err) { window.showToast("操作失敗", "error"); }
+                });
+            });
+
+            document.querySelectorAll('.send-banner-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const msg = prompt("請輸入要廣播給該用戶的系統橫幅：");
+                    if (msg) {
+                        try {
+                            await updateDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', id), {
+                                bannerMessage: msg, bannerActive: true, bannerId: Date.now().toString()
+                            });
+                            window.showToast("廣播推播成功！", "success");
+                        } catch(err) { window.showToast("推播失敗", "error"); }
+                    }
+                });
+            });
+
+            document.querySelectorAll('.force-reset-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const pass = prompt("【危險操作】請輸入 2FA 本地萬用密鑰以確認清空該用戶資料：");
+                    if (pass === "ianw0000") {
+                        try {
+                            await updateDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', id), { forceReset: true });
+                            window.showToast("重置核彈已發射！", "success");
+                        } catch(err) { window.showToast("重置失敗", "error"); }
+                    } else {
+                        window.showToast("2FA 密鑰驗證失敗！", "error");
+                    }
+                });
+            });
+
+        } catch(err) {
+            usersList.innerHTML = `<tr><td colspan="5" class="text-center p-6 text-rose-500 font-bold">載入失敗: ${err.message}</td></tr>`;
         }
     }
 
@@ -835,7 +1078,7 @@
 
     function saveData() {
         isSaving = true;
-        isLocalEmptyOnBoot = false; // 取消自動覆蓋
+        isLocalEmptyOnBoot = false; 
         return new Promise((resolve) => {
             if (saveTimeout) clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
@@ -844,7 +1087,8 @@
                     if (fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
                         const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
                     }
-                    await syncDataToCloud(); 
+                    await syncDataToCloud();
+                    await syncUserProfile(); // 🛡️ 更新管理員可見之儲存容量
                 } catch (error) { console.error(error); } finally { isSaving = false; resolve(); }
             }, 300);
         });
@@ -1357,7 +1601,6 @@
 
     function fullRender() { updateTypeSelects(); renderClassSelector(); renderClassList(); renderHomeworkList(); }
     
-    // ✨ 顯示歡迎畫面的步驟切換
     function showWelcomeStep1() {
         document.getElementById('welcome-step-1').classList.remove('hidden');
         document.getElementById('welcome-step-2').classList.add('hidden');
@@ -1375,6 +1618,13 @@
         const bindSubmit = (id, handler) => { const el = document.getElementById(id); if (el) el.addEventListener('submit', handler); };
 
         bindClick('intro-btn', () => openModal(document.getElementById('intro-modal')));
+        
+        // 🛡️ 管理員後台按鈕
+        bindClick('admin-btn', () => {
+            openModal(document.getElementById('admin-modal'));
+            loadAllUsersForAdmin();
+        });
+
         bindClick('show-add-modal-btn', () => {
             const modal = document.getElementById('add-homework-modal');
             document.getElementById('homework-modal-title').textContent = '新增作業'; modal.querySelector('form').reset(); document.getElementById('edit-homework-id').value = '';
@@ -1393,10 +1643,8 @@
         bindClick('contact-book-btn', () => showContactBookPage());
         bindClick('show-types-modal-btn', () => showHomeworkTypesPage());
         
-        // ✨ 新增設定 Modal 的呼叫
         bindClick('settings-btn', () => { updateDataManagementUI(); openModal(document.getElementById('settings-modal')); });
         
-        // ✨ 設定 Modal 內的模式切換
         bindClick('setting-mode-manual-btn', () => { applyCheckMode('manual'); window.showToast('已切換為手動點收模式', 'success'); });
         bindClick('setting-mode-scan-btn', () => { applyCheckMode('scan'); window.showToast('已切換為條碼掃描模式', 'success'); });
 
@@ -1561,7 +1809,6 @@
             });
         });
 
-        // ✨ Welcome Modal 流程事件
         let tempCheckMode = null;
         
         bindClick('welcome-skip-btn', () => {
@@ -1750,7 +1997,6 @@
         setupButtonEvents(); 
         document.getElementById('loading-page').classList.add('hidden');
 
-        // 初始化套用儲存的點收模式
         if (localStorage.getItem('checkMode')) {
             applyCheckMode(localStorage.getItem('checkMode'));
         }
@@ -1765,7 +2011,6 @@
             return;
         }
         
-        // 若已完成初始設定，再次確認套用模式並進入主畫面
         applyCheckMode(localStorage.getItem('checkMode') || 'scan');
 
         if (window.showSaveFilePicker) {
