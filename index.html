@@ -78,6 +78,16 @@
         <p class="text-slate-300 font-medium max-w-md leading-relaxed text-sm">系統偵測到異常操作或合約到期，您的帳號目前暫時被凍結。<br>請聯繫系統管理員 ianw.solar@gmail.com 協助解鎖。</p>
     </div>
 
+    <!-- 伺服器維護畫面 -->
+    <div id="system-maintenance-screen" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[100000] flex flex-col items-center justify-center p-6 text-center hidden">
+        <div class="text-6xl mb-6 shadow-2xl animate-bounce">🚧</div>
+        <h1 class="text-3xl font-black text-white mb-4">系統維護中</h1>
+        <p id="maintenance-msg" class="text-slate-300 font-medium max-w-md leading-relaxed text-sm mb-8">系統目前正在進行維護升級，請稍後再試。</p>
+        <button id="new-version-btn" class="hidden bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-indigo-500/50 hover:scale-105 transition-all text-sm tracking-wide">
+            前往全新版本
+        </button>
+    </div>
+
     <!-- 頂部同步列 -->
     <div id="sync-banner" class="hidden mx-auto max-w-xl bg-slate-950/85 backdrop-blur-xl text-white px-5 py-3 rounded-2xl justify-between items-center text-sm z-[90] fixed top-4 left-4 right-4 shadow-2xl border border-white/10 animate-bounce">
         <span class="font-bold tracking-wide flex items-center gap-1.5">
@@ -292,6 +302,33 @@
                 </button>
             </div>
             <div class="flex-grow p-6 overflow-y-auto bg-slate-50 custom-scrollbar">
+                
+                <!-- 全服維護控制面板 -->
+                <div class="mb-6 bg-white border border-rose-200 rounded-2xl p-5 shadow-sm overflow-hidden relative">
+                    <div class="absolute top-0 left-0 w-1 h-full bg-rose-500"></div>
+                    <h3 class="font-bold text-rose-800 mb-4 flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+                        全服維護模式控制
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="space-y-3">
+                            <label class="flex items-center text-sm font-bold text-slate-700 cursor-pointer">
+                                <input type="checkbox" id="admin-maintenance-toggle" class="mr-2 h-4 w-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"> 啟用全服維護模式
+                            </label>
+                            <input type="text" id="admin-maintenance-msg" class="w-full text-sm p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors" placeholder="自訂維護公告 (選填)">
+                        </div>
+                        <div class="space-y-3">
+                            <label class="flex items-center text-sm font-bold text-slate-700 cursor-pointer">
+                                <input type="checkbox" id="admin-show-link-toggle" class="mr-2 h-4 w-4 text-rose-600 rounded border-slate-300 focus:ring-rose-500"> 顯示新版本跳轉連結
+                            </label>
+                            <input type="text" id="admin-new-version-url" class="w-full text-sm p-2.5 border border-slate-200 rounded-xl bg-slate-50 focus:bg-white transition-colors" placeholder="新版本網址 (例如: https://...)">
+                        </div>
+                    </div>
+                    <div class="mt-4 flex justify-end">
+                        <button id="admin-apply-maintenance-btn" class="bg-rose-600 text-white px-5 py-2 rounded-xl font-bold shadow-md hover:bg-rose-700 transition-colors text-sm">發布全服設定</button>
+                    </div>
+                </div>
+
                 <p class="text-sm font-bold text-slate-500 mb-4 flex items-center gap-2"><svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>此處列出所有已註冊且同步過的用戶雲端資料庫狀態與用量。</p>
                 <div class="overflow-x-auto rounded-xl border border-slate-200 bg-white shadow-sm">
                     <table class="w-full text-left border-collapse min-w-max">
@@ -648,6 +685,7 @@
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
     let unsubProfile = null; // 用於監聽全局使用者的管理員狀態
+    let unsubServerConfig = null; // 🚧 用於監聽全服維護狀態
     const globalAppId = typeof __app_id !== 'undefined' ? __app_id : 'homework-checker-pro';
     
     let isLocalEmptyOnBoot = !localStorage.getItem('homeworkAppData');
@@ -696,6 +734,9 @@
             updateDataManagementUI();
             
             if (user) {
+                // 重新評估維護模式是否對此登入者免疫
+                listenToServerConfig();
+
                 // 🛡️ Admin Check
                 if (user.email === 'ianw.solar@gmail.com') {
                     document.getElementById('admin-btn')?.classList.remove('hidden');
@@ -716,6 +757,10 @@
             } else {
                 document.getElementById('admin-btn')?.classList.add('hidden');
                 if (unsubProfile) unsubProfile();
+                if (unsubServerConfig) {
+                    unsubServerConfig();
+                    unsubServerConfig = null;
+                }
             }
         });
     } catch(err) {
@@ -817,6 +862,45 @@
         }
     }
 
+    // 🚧 全服維護模式監聽器
+    function listenToServerConfig() {
+        if (!fbDb || !currentUser) return;
+        
+        if (unsubServerConfig) unsubServerConfig();
+        
+        const configRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'serverConfig', 'main');
+        unsubServerConfig = onSnapshot(configRef, (docSnap) => {
+            const maintenanceScreen = document.getElementById('system-maintenance-screen');
+            const newVersionBtn = document.getElementById('new-version-btn');
+            const maintenanceMsg = document.getElementById('maintenance-msg');
+            
+            const isAdmin = currentUser && currentUser.email === 'ianw.solar@gmail.com';
+
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                if (data.isMaintenance && !isAdmin) {
+                    if (maintenanceScreen) maintenanceScreen.classList.remove('hidden');
+                    if (maintenanceMsg) maintenanceMsg.textContent = data.maintenanceMessage || '系統目前正在進行維護升級，請稍後再試。';
+                    
+                    if (data.showNewVersionLink && data.newVersionUrl) {
+                        newVersionBtn.classList.remove('hidden');
+                        newVersionBtn.onclick = () => window.location.href = data.newVersionUrl;
+                    } else {
+                        newVersionBtn.classList.add('hidden');
+                    }
+                } else {
+                    if (maintenanceScreen) maintenanceScreen.classList.add('hidden');
+                }
+            } else {
+                if (maintenanceScreen) maintenanceScreen.classList.add('hidden');
+            }
+        }, (error) => {
+            console.error("Server config listen error:", error);
+            const maintenanceScreen = document.getElementById('system-maintenance-screen');
+            if (maintenanceScreen) maintenanceScreen.classList.add('hidden');
+        });
+    }
+
     // 🛡️ 系統控管監聽器 (即時捕捉管理員操作)
     function listenToProfile() {
         if (!currentUser || !fbDb) return;
@@ -900,9 +984,28 @@
         setTimeout(() => window.location.reload(), 2000);
     }
 
+    // 🚧 載入管理員後台維護狀態
+    async function loadServerConfigForAdmin() {
+        if (!fbDb || currentUser?.email !== 'ianw.solar@gmail.com') return;
+        try {
+            const configRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'serverConfig', 'main');
+            const docSnap = await getDoc(configRef);
+            if (docSnap.exists()) {
+                const data = docSnap.data();
+                document.getElementById('admin-maintenance-toggle').checked = data.isMaintenance || false;
+                document.getElementById('admin-maintenance-msg').value = data.maintenanceMessage || '';
+                document.getElementById('admin-show-link-toggle').checked = data.showNewVersionLink || false;
+                document.getElementById('admin-new-version-url').value = data.newVersionUrl || '';
+            }
+        } catch(e) { console.error("Load config error", e); }
+    }
+
     // 🛡️ 管理員專用：讀取全局用戶清單
     async function loadAllUsersForAdmin() {
         if (currentUser?.email !== 'ianw.solar@gmail.com') return;
+        
+        loadServerConfigForAdmin(); // 順便載入全服設定
+
         const usersList = document.getElementById('admin-users-list');
         usersList.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500 font-bold">📡 正在載入全球伺服器資料...</td></tr>';
         
@@ -1629,6 +1732,37 @@
             openModal(document.getElementById('admin-modal'));
             loadAllUsersForAdmin();
         });
+
+        // 🚧 全服維護設定發布按鈕
+        const applyMaintenanceBtn = document.getElementById('admin-apply-maintenance-btn');
+        if (applyMaintenanceBtn) {
+            applyMaintenanceBtn.addEventListener('click', async () => {
+                const isMaintenance = document.getElementById('admin-maintenance-toggle').checked;
+                const maintenanceMessage = document.getElementById('admin-maintenance-msg').value;
+                const showNewVersionLink = document.getElementById('admin-show-link-toggle').checked;
+                const newVersionUrl = document.getElementById('admin-new-version-url').value;
+
+                if (showNewVersionLink && !newVersionUrl) {
+                    window.showToast('開啟新版連結功能時，必須填寫網址！', 'error');
+                    return;
+                }
+
+                try {
+                    const configRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'serverConfig', 'main');
+                    await setDoc(configRef, {
+                        isMaintenance,
+                        maintenanceMessage,
+                        showNewVersionLink,
+                        newVersionUrl,
+                        updatedAt: new Date().toISOString()
+                    }, { merge: true });
+                    
+                    window.showToast('✅ 全服維護設定已成功發布！', 'success');
+                } catch(e) {
+                    window.showToast('發布失敗', 'error');
+                }
+            });
+        }
 
         bindClick('show-add-modal-btn', () => {
             const modal = document.getElementById('add-homework-modal');
