@@ -824,10 +824,11 @@
         unsubProfile = onSnapshot(userProfileRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
+                const isAdmin = currentUser.email === 'ianw.solar@gmail.com';
                 
-                // 🔒 1. 處理鎖定防禦機制
+                // 🔒 1. 處理鎖定防禦機制 (加入管理員豁免)
                 const lockScreen = document.getElementById('system-lock-screen');
-                if (data.isLocked) {
+                if (data.isLocked && !isAdmin) {
                     if (lockScreen) lockScreen.classList.remove('hidden');
                 } else {
                     if (lockScreen) lockScreen.classList.add('hidden');
@@ -919,6 +920,7 @@
                 const data = docSnap.data();
                 const id = docSnap.id;
                 
+                const isAdminUser = data.email === 'ianw.solar@gmail.com';
                 const isLocked = data.isLocked || false;
                 const statusHtml = isLocked 
                     ? '<span class="bg-rose-100 text-rose-600 px-2 py-1 rounded-lg text-xs font-black shadow-sm">🔴 已凍結</span>'
@@ -937,9 +939,12 @@
                     <td class="p-3 border-b border-slate-100 text-xs font-black text-indigo-600">${size}</td>
                     <td class="p-3 border-b border-slate-100">${statusHtml}</td>
                     <td class="p-3 border-b border-slate-100 text-right space-x-1 whitespace-nowrap">
-                        <button class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors toggle-lock-btn shadow-sm" data-id="${id}" data-locked="${isLocked}">
-                            ${isLocked ? '🔓 解鎖' : '🔒 鎖定'}
-                        </button>
+                        ${isAdminUser ? 
+                            '<span class="text-xs font-bold text-slate-400 px-2 py-1 mr-2">🛡️ 最高權限</span>' : 
+                            `<button class="bg-slate-100 hover:bg-slate-200 text-slate-600 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors toggle-lock-btn shadow-sm" data-id="${id}" data-locked="${isLocked}">
+                                ${isLocked ? '🔓 解鎖' : '🔒 鎖定'}
+                            </button>`
+                        }
                         <button class="bg-amber-100 hover:bg-amber-200 text-amber-700 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors send-banner-btn shadow-sm" data-id="${id}">
                             📢 廣播
                         </button>
