@@ -355,7 +355,7 @@
         <div class="modal-content bg-white rounded-3xl shadow-2xl shadow-slate-900/40 p-0 w-full max-w-3xl transform scale-95 max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 sm:px-8 sm:py-6 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-3">
-                    <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path></svg></span>
+                    <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253"></path></svg></span>
                     作業點收系統 - 終極功能指南
                 </h2>
                 <button class="cancel-btn text-slate-400 hover:text-slate-600 bg-slate-100 hover:bg-slate-200 p-2 rounded-full transition-colors">
@@ -363,7 +363,65 @@
                 </button>
             </div>
             <div class="overflow-y-auto p-6 sm:p-8 space-y-6 sm:space-y-8 text-sm text-slate-600 flex-grow font-medium custom-scrollbar">
-                <p>這是一套支援本地暫存與 Firebase 雲端同步的精緻點收系統，結合智慧條碼掃描功能，為您帶來無縫的教學體驗。</p>
+                
+                <div class="mb-4">
+                    <p class="text-base text-slate-700 leading-relaxed font-bold mb-4">這是一套專為教育現場打造的「精緻化作業點收系統」，結合智慧條碼掃描功能、雙軌儲存機制與離線 PWA 支援，為您帶來極致流暢的教學管理體驗。</p>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Feature 1 -->
+                    <div class="bg-indigo-50/50 p-5 rounded-2xl border border-indigo-100/50">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">☁️</span>
+                            <h3 class="font-black text-indigo-900 text-base">雙軌安全儲存機制</h3>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-indigo-800/80 text-xs">
+                            <li><b>本機硬碟直連：</b>可將資料直接綁定儲存於您的電腦 `.json` 檔案中，確保資料私密性。</li>
+                            <li><b>Firebase 雲端備份：</b>登入 Google 帳號後，系統會自動將資料備份至雲端，實現跨裝置無縫接軌。</li>
+                            <li><b>時光機快取：</b>系統每日自動保留最多 3 天的備份快取，隨時可以倒退還原。</li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 2 -->
+                    <div class="bg-emerald-50/50 p-5 rounded-2xl border border-emerald-100/50">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">📠</span>
+                            <h3 class="font-black text-emerald-900 text-base">智慧條碼掃描點收</h3>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-emerald-800/80 text-xs">
+                            <li><b>條碼槍支援：</b>將游標停在掃描框中，刷讀學生條碼即可瞬間改變作業狀態。</li>
+                            <li><b>等差數列推算：</b>在「條碼設定」中，只需輸入前三位學生的條碼，系統能自動推算全班條碼。</li>
+                            <li><b>模式自由切換：</b>如果不使用條碼，也可切換為「手動點擊模式」，版面更清爽。</li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 3 -->
+                    <div class="bg-amber-50/50 p-5 rounded-2xl border border-amber-100/50">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">📋</span>
+                            <h3 class="font-black text-amber-900 text-base">互動式聯絡簿黑板</h3>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-amber-800/80 text-xs">
+                            <li><b>擬真黑板介面：</b>紀錄每日聯絡事項，支援字體放大縮小與行距調整。</li>
+                            <li><b>一鍵轉作業：</b>點擊黑板項目旁的「📖」，可立刻將該事項轉換為今日的新作業開始點收。</li>
+                            <li><b>套用昨日功能：</b>可以快速複製前一天的聯絡事項，減少重複輸入的時間。</li>
+                        </ul>
+                    </div>
+
+                    <!-- Feature 4 -->
+                    <div class="bg-rose-50/50 p-5 rounded-2xl border border-rose-100/50">
+                        <div class="flex items-center gap-3 mb-3">
+                            <span class="text-2xl">⚙️</span>
+                            <h3 class="font-black text-rose-900 text-base">高度自訂與統計</h3>
+                        </div>
+                        <ul class="list-disc pl-5 space-y-1.5 text-rose-800/80 text-xs">
+                            <li><b>自訂作業種類：</b>除了預設狀態，您可自行建立「閱讀」、「背誦」等種類，並自訂各狀態的顏色與名稱。</li>
+                            <li><b>學生詳情矩陣：</b>一眼看清全班哪些學生還有多少作業未交，支援名單排序。</li>
+                            <li><b>全勤榮譽榜：</b>一鍵拉出所有作業皆已完成的乖寶寶名單。</li>
+                        </ul>
+                    </div>
+                </div>
+
             </div>
             <div class="bg-slate-50 px-6 py-4 border-t border-slate-200 flex justify-end flex-shrink-0">
                 <button type="button" class="cancel-btn bg-slate-800 text-white font-bold py-2.5 px-8 text-sm rounded-xl hover:bg-slate-900 shadow-md transition-transform active:scale-95">開始使用</button>
@@ -680,7 +738,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { doc, setDoc, getDoc, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, collection, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, getDoc, enableIndexedDbPersistence, collection, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
@@ -951,20 +1009,39 @@
 
     // 🛡️ 紀錄使用者佔用與上線時間
     async function syncUserProfile() {
-        if (!currentUser || !fbDb) return;
+        if (!fbDb) return;
         try {
             const fullBytes = new Blob([JSON.stringify(appData)]).size;
             const currentDataSizeKB = (fullBytes / 1024).toFixed(1);
             
-            const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
-            await setDoc(userProfileRef, {
-                email: currentUser.email,
-                displayName: currentUser.displayName || currentUser.email,
-                lastActive: new Date().toISOString(),
-                dataSizeKB: currentDataSizeKB
-            }, { merge: true });
+            if (currentUser) {
+                // 已登入會員寫入
+                const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+                await setDoc(userProfileRef, {
+                    email: currentUser.email,
+                    displayName: currentUser.displayName || currentUser.email,
+                    isGuest: false,
+                    lastActive: new Date().toISOString(),
+                    dataSizeKB: currentDataSizeKB
+                }, { merge: true });
+            } else {
+                // 🛡️ 未登入訪客足跡追蹤 (發射器)
+                let visitorId = localStorage.getItem('visitor_id');
+                if (!visitorId) {
+                    visitorId = 'guest_' + generateId();
+                    localStorage.setItem('visitor_id', visitorId);
+                }
+                const guestProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId);
+                await setDoc(guestProfileRef, {
+                    email: null,
+                    displayName: '未登入訪客',
+                    isGuest: true,
+                    lastActive: new Date().toISOString(),
+                    dataSizeKB: currentDataSizeKB
+                }, { merge: true });
+            }
         } catch(err) {
-            console.error("syncUserProfile err", err);
+            console.warn("syncUserProfile err", err); // 訪客寫入若因網路或規則失敗，不阻擋主程式
         }
     }
 
@@ -1201,7 +1278,7 @@
                         const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
                     }
                     await syncDataToCloud();
-                    await syncUserProfile(); // 🛡️ 更新管理員可見之儲存容量
+                    await syncUserProfile(); // 🛡️ 更新管理員可見之儲存容量 (包含訪客追蹤更新)
                 } catch (error) { console.error(error); } finally { isSaving = false; resolve(); }
             }, 300);
         });
