@@ -1032,11 +1032,18 @@
         localStorage.setItem('homeworkAppData', JSON.stringify(appData));
         
         if (currentUser && fbDb) {
-            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
-            await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
-            
-            const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
-            await updateDoc(userProfileRef, { forceReset: false }); 
+            try {
+                // 將更新 firebase 的動作包在 try...catch 中
+                const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
+                await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
+                
+                const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+                // 這裡容易因為 Firestore 規則報錯，若沒有 try...catch 整個函數會中斷執行
+                await updateDoc(userProfileRef, { forceReset: false }); 
+            } catch (err) {
+                console.error("執行 Firebase 狀態重置時發生錯誤", err);
+                // 就算發生錯誤，也不阻擋後續畫面刷新
+            }
         }
         
         const lockScreen = document.getElementById('system-lock-screen');
@@ -1152,6 +1159,7 @@
                     const pass = prompt("【危險操作】請輸入 2FA 本地萬用密鑰以確認清空該用戶資料：");
                     if (pass === "ianw0000") {
                         try {
+                            // 設定該用戶的 profile 狀態，讓其自己觸發清空
                             await updateDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', id), { forceReset: true });
                             window.showToast("重置核彈已發射！", "success");
                         } catch(err) { window.showToast("重置失敗", "error"); }
