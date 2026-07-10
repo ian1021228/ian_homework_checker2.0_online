@@ -858,7 +858,8 @@
                     await loadDataFromCloud(false);
                 }
                 
-                if (!localStorage.getItem('hasSeenWelcome_final')) {
+                if (!localStorage.getItem('hasSeenZoomPrompt')) { window.showAlertModal('提示', '請將分頁縮放調到100%', () => { document.body.style.zoom = '100%'; }); localStorage.setItem('hasSeenZoomPrompt', 'true'); }
+        if (!localStorage.getItem('hasSeenWelcome_final')) {
                     openModal(document.getElementById('welcome-modal'));
                     showWelcomeStep2();
                 }
@@ -922,13 +923,13 @@
         setTimeout(() => { toast.classList.add('translate-y-4', 'opacity-0'); setTimeout(() => toast.remove(), 300); }, 3200);
     }
 
-    window.showAlertModal = function(title, message) {
+    window.showAlertModal = function(title, message, onOk) {
         document.getElementById('confirm-title').textContent = title;
         document.getElementById('confirm-message').textContent = message;
         const confirmOk = document.getElementById('confirm-ok'), confirmCancel = document.getElementById('confirm-cancel');
         confirmCancel.classList.add('hidden');
         openModal(document.getElementById('confirm-modal'));
-        const okHandler = () => { closeModal(document.getElementById('confirm-modal')); cleanup(); };
+        const okHandler = () => { closeModal(document.getElementById('confirm-modal')); cleanup(); if (onOk) onOk(); };
         const cleanup = () => { confirmOk.removeEventListener('click', okHandler); confirmCancel.classList.remove('hidden'); };
         confirmOk.addEventListener('click', okHandler);
     }
@@ -2308,6 +2309,7 @@
             applyCheckMode(localStorage.getItem('checkMode'));
         }
 
+        if (!localStorage.getItem('hasSeenZoomPrompt')) { window.showAlertModal('提示', '請將分頁縮放調到100%', () => { document.body.style.zoom = '100%'; }); localStorage.setItem('hasSeenZoomPrompt', 'true'); }
         if (!localStorage.getItem('hasSeenWelcome_final')) {
             openModal(document.getElementById('welcome-modal'));
             if (currentUser || fileHandle || localStorage.getItem('storageSelected')) {
