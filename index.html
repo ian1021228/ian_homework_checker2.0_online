@@ -874,17 +874,12 @@
             updateDataManagementUI();
             
             if (user) {
-                listenToServerConfig();
-
                 if (user.email === 'ianw.solar@gmail.com') {
                     document.getElementById('admin-btn')?.classList.remove('hidden');
                 } else {
                     document.getElementById('admin-btn')?.classList.add('hidden');
                 }
-
-                await syncUserProfile();
-                listenToProfile();
-
+                
                 if (isLocalEmptyOnBoot && localStorage.getItem('hasSeenWelcome_final')) {
                     window.showToast("⏳ 正在從雲端同步您的資料...", "info");
                     const hasData = await loadDataFromCloud(true);
@@ -892,12 +887,10 @@
                 }
             } else {
                 document.getElementById('admin-btn')?.classList.add('hidden');
-                if (unsubProfile) unsubProfile();
-                if (unsubServerConfig) {
-                    unsubServerConfig();
-                    unsubServerConfig = null;
-                }
             }
+            await syncUserProfile();
+            listenToServerConfig();
+            listenToProfile();
         });
     } catch(err) {
         console.warn("Firebase 初始化失敗:", err);
@@ -995,7 +988,7 @@
     }
 
     function listenToServerConfig() {
-        if (!fbDb || !currentUser) return;
+        if (!fbDb) return;
         
         if (unsubServerConfig) unsubServerConfig();
         
@@ -1033,12 +1026,14 @@
     }
 
     function listenToProfile() {
-        if (!currentUser || !fbDb) return;
-        const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
+        if (!fbDb) return;
+        const uid = currentUser ? currentUser.uid : localStorage.getItem('visitor_id');
+        if (!uid) return;
+        const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', uid);
         unsubProfile = onSnapshot(userProfileRef, (docSnap) => {
             if (docSnap.exists()) {
                 const data = docSnap.data();
-                const isAdmin = currentUser.email === 'ianw.solar@gmail.com';
+                const isAdmin = currentUser && currentUser.email === 'ianw.solar@gmail.com';
                 
                 const lockScreen = document.getElementById('system-lock-screen');
                 if (data.isLocked && !isAdmin) {
@@ -1110,18 +1105,20 @@
         appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(JSON.stringify(DEFAULT_TYPES)) };
         localStorage.setItem('homeworkAppData', JSON.stringify(appData));
         
-        if (currentUser && fbDb) {
-            try {
-                // 將更新 firebase 的動作包在 try...catch 中
-                const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
-                await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
-                
-                const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
-                // 這裡容易因為 Firestore 規則報錯，若沒有 try...catch 整個函數會中斷執行
-                await updateDoc(userProfileRef, { forceReset: false }); 
-            } catch (err) {
-                console.error("執行 Firebase 狀態重置時發生錯誤", err);
-                // 就算發生錯誤，也不阻擋後續畫面刷新
+        if (fbDb) {
+            const uid = currentUser ? currentUser.uid : localStorage.getItem('visitor_id');
+            if (uid) {
+                try {
+                    if (currentUser) {
+                        const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', uid, 'appData', 'mainDoc');
+                        await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
+                    }
+                    
+                    const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', uid);
+                    await updateDoc(userProfileRef, { forceReset: false }); 
+                } catch (err) {
+                    console.error("執行 Firebase 狀態重置時發生錯誤", err);
+                }
             }
         }
         
@@ -1183,7 +1180,7 @@
                 tr.innerHTML = `
                     <td class="p-3 border-b border-slate-100">
                         <div class="font-black text-slate-800 text-base">${data.displayName}</div>
-                        <div class="text-[11px] font-bold text-slate-400 mt-0.5">${data.email}</div>
+                        <div class="text-[11px] font-bold text-slate-400 mt-0.5">${data.email || '未登入 (訪客)'}</div>
                     </td>
                     <td class="p-3 border-b border-slate-100 text-xs font-bold text-slate-500 hidden sm:table-cell">${lastActive}</td>
                     <td class="p-3 border-b border-slate-100 text-xs font-black text-indigo-600">${size}</td>
