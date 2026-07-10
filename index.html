@@ -15,23 +15,31 @@
     
     <style>
         /* ✨ 縮小所有物件 20% (由預設 100% 縮小至 80%) */
-        html { font-size: 80% !important; }
+        html { scroll-behavior: smooth; }
 
         body {
             font-family: 'Inter', 'Noto Sans TC', sans-serif;
             padding-bottom: 40px;
-            background: radial-gradient(100% 100% at 50% 0%, rgba(99, 102, 241, 0.05) 0%, rgba(248, 250, 252, 0) 100%), #f8fafc;
+            background-color: #f8fafc;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(236, 72, 153, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(59, 130, 246, 0.08) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
+                url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%236366f1' fill-opacity='0.03'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            background-attachment: fixed;
+            min-height: 100vh;
         }
         @media screen and (max-width: 768px) {
             input, select, textarea { font-size: 16px !important; }
         }
         
         .page-section {
-            animation: fadeIn 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+            animation: fadeIn 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(12px); }
-            to { opacity: 1; transform: translateY(0); }
+            from { opacity: 0; transform: translateY(15px); filter: blur(4px); }
+            to { opacity: 1; transform: translateY(0); filter: blur(0); }
         }
 
         .chalk-text {
@@ -44,10 +52,54 @@
             animation: shimmer 1.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
         ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.3); border-radius: 9999px; transition: background 0.2s; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.45); }
+        ::-webkit-scrollbar-thumb { background: rgba(148, 163, 184, 0.4); border-radius: 9999px; transition: background 0.3s ease; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(99, 102, 241, 0.6); }
+
+        /* Custom card hover effects */
+        ::selection { background: rgba(99, 102, 241, 0.25); color: #1e1b4b; }
+        
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        .glass-card:hover {
+            transform: translateY(-4px) scale(1.01);
+            box-shadow: 0 15px 35px 0 rgba(31, 38, 135, 0.1);
+            border-color: rgba(255, 255, 255, 0.9);
+            background: rgba(255, 255, 255, 0.85);
+        }
+
+        .btn-glow {
+            position: relative;
+        }
+        .btn-glow::after {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            background: inherit;
+            filter: blur(12px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            z-index: -1;
+            border-radius: inherit;
+        }
+        .btn-glow:hover::after {
+            opacity: 0.6;
+        }
+
+        .animated-gradient-text {
+            background-size: 200% auto;
+            animation: textGradient 4s linear infinite;
+        }
+        @keyframes textGradient {
+            to { background-position: 200% center; }
+        }
     </style>
 
     <script>
@@ -60,7 +112,13 @@
         }
     </script>
 </head>
-<body class="text-slate-800 antialiased overflow-x-hidden">
+<body class="text-slate-800 antialiased overflow-x-hidden relative">
+    
+    <!-- Decorative Background Mesh Orbs (Fixed) -->
+    <div class="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none z-0"></div>
+    <div class="fixed bottom-[-15%] right-[-10%] w-[50%] h-[50%] rounded-full bg-rose-500/20 blur-[130px] pointer-events-none z-0"></div>
+    <div class="fixed top-[30%] left-[25%] w-[35%] h-[35%] rounded-full bg-sky-400/15 blur-[110px] pointer-events-none z-0"></div>
+
 
     <!-- 系統廣播橫幅 (管理員推播用) -->
     <div id="system-banner" class="hidden mx-auto max-w-2xl bg-amber-500/95 backdrop-blur-xl text-white px-5 py-3 rounded-b-2xl justify-between items-center text-sm z-[95] fixed top-0 left-4 right-4 shadow-2xl border border-amber-400 shadow-amber-500/20">
@@ -80,7 +138,7 @@
 
     <!-- 伺服器維護畫面 -->
     <div id="system-maintenance-screen" class="fixed inset-0 bg-slate-900/95 backdrop-blur-xl z-[100000] flex flex-col items-center justify-center p-6 text-center hidden">
-        <div class="text-6xl mb-6 shadow-2xl animate-bounce">🚧</div>
+        <div class="text-6xl mb-6 shadow-2xl animate-[bounce_3s_infinite]">🚧</div>
         <h1 class="text-3xl font-black text-white mb-4">系統維護中</h1>
         <p id="maintenance-msg" class="text-slate-300 font-medium max-w-md leading-relaxed text-sm mb-8">系統目前正在進行維護升級，請稍後再試。</p>
         <button id="new-version-btn" class="hidden bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-bold py-3 px-8 rounded-xl shadow-lg hover:shadow-indigo-500/50 hover:scale-105 transition-all text-sm tracking-wide">
@@ -89,7 +147,7 @@
     </div>
 
     <!-- 頂部同步列 -->
-    <div id="sync-banner" class="hidden mx-auto max-w-xl bg-slate-950/85 backdrop-blur-xl text-white px-5 py-3 rounded-2xl justify-between items-center text-sm z-[90] fixed top-4 left-4 right-4 shadow-2xl border border-white/10 animate-bounce">
+    <div id="sync-banner" class="hidden mx-auto max-w-xl bg-slate-950/85 backdrop-blur-xl text-white px-5 py-3 rounded-2xl justify-between items-center text-sm z-[90] fixed top-4 left-4 right-4 shadow-2xl border border-white/10 animate-[bounce_3s_infinite]">
         <span class="font-bold tracking-wide flex items-center gap-1.5">
             <span class="relative flex h-2 w-2">
                 <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
@@ -101,47 +159,48 @@
     </div>
 
     <!-- 首頁 Main Page -->
-    <div id="main-page" class="container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 hidden page-section">
-        <header class="flex flex-col gap-6 mb-10">
+    <div id="main-page" class="container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 hidden page-section">
+        <header class="flex flex-col gap-6 mb-10 relative z-10 p-6 glass-card rounded-3xl">
             <div class="flex flex-col xl:flex-row justify-between items-start xl:items-center gap-6 w-full">
                 <!-- 左側：標題與班級選單 -->
                 <div class="flex items-center gap-4 flex-shrink-0">
-                     <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">作業列表</h1>
-                     <select id="class-selector" class="rounded-xl border-slate-200/80 shadow-sm shadow-slate-100/50 focus:border-indigo-500 focus:ring-indigo-500 py-2 px-4 text-base bg-white font-extrabold text-indigo-600 cursor-pointer transition-all"></select>
+                     <h1 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-slate-800 to-slate-500 tracking-tight">作業列表</h1>
+                     <select id="class-selector" class="rounded-xl border-slate-200/80 shadow-sm shadow-slate-100/50 focus:border-indigo-500 focus:ring-indigo-500 py-3 px-5 text-lg bg-white font-extrabold text-indigo-600 cursor-pointer transition-all"></select>
                 </div>
                 
                 <!-- 右側：功能按鈕列 -->
                 <div class="flex flex-wrap justify-start xl:justify-end items-center gap-3 w-full xl:w-auto">
                      <!-- ✨ 後台管理按鈕 (限定 ianw.solar@gmail.com) -->
-                     <button id="admin-btn" class="hidden bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">🛡️ 管理後台</button>
+                     <button id="admin-btn" class="hidden bg-gradient-to-r from-amber-400 to-orange-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">🛡️ 管理後台</button>
 
-                     <button id="install-pwa-btn" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-lg shadow-pink-500/10 hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">⬇️ 安裝 App</button>
+                     <button id="install-pwa-btn" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-lg shadow-pink-500/10 hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">⬇️ 安裝 App</button>
                      
-                     <button id="intro-btn" class="bg-white border border-slate-200 text-slate-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">網站介紹</button>
-                     <button id="show-types-modal-btn" class="bg-white border border-slate-200 text-orange-500 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-orange-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">作業種類</button>
-                     <button id="contact-book-btn" class="bg-white border border-slate-200 text-purple-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-purple-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">聯絡簿</button>
-                     <button id="student-details-btn" class="bg-white border border-slate-200 text-emerald-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-emerald-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">學生詳情</button>
-                     <button id="set-barcodes-btn" class="bg-white border border-slate-200 text-blue-600 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">🏷️ 條碼設定</button>
-                     <button id="manage-classes-btn" class="bg-white border border-slate-200 text-slate-500 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">管理班級</button>
+                     <button id="intro-btn" class="glass-card border border-white/60 text-slate-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">網站介紹</button>
+                     <button id="show-types-modal-btn" class="glass-card border border-white/60 text-orange-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-orange-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">作業種類</button>
+                     <button id="contact-book-btn" class="glass-card border border-white/60 text-purple-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-purple-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">聯絡簿</button>
+                     <button id="student-details-btn" class="glass-card border border-white/60 text-emerald-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-emerald-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">學生詳情</button>
+                     <button id="set-barcodes-btn" class="glass-card border border-white/60 text-blue-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">🏷️ 條碼設定</button>
+                     <button id="manage-classes-btn" class="glass-card border border-white/60 text-slate-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">管理班級</button>
                      
                      <!-- 設定按鈕取代原本的資料管理 -->
-                     <button id="settings-btn" class="bg-white border border-slate-200 text-slate-700 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
+                     <button id="settings-btn" class="glass-card border border-white/60 text-slate-700 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
                          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                          設定
                      </button>
                      
-                     <button id="show-add-modal-btn" class="bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-2 px-5 text-sm rounded-xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 whitespace-nowrap tracking-wide">✨ 新增作業</button>
+                     <button id="show-add-modal-btn" class="btn-glow bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 whitespace-nowrap tracking-wide">✨ 新增作業</button>
                 </div>
             </div>
             <div class="flex justify-end items-center gap-2 mt-2 xl:mt-0">
-                <label for="sort-homework" class="text-xs font-bold uppercase tracking-wider text-slate-400">排序方式：</label>
-                <select id="sort-homework" class="text-sm rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-1.5 px-3 cursor-pointer">
+                <label for="sort-homework" class="text-sm font-bold uppercase tracking-wider text-slate-400">排序方式：</label>
+                <select id="sort-homework" class="text-base rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-4 cursor-pointer">
                     <option value="time">建立時間 (新→舊)</option>
                     <option value="missing">缺交人數 (多→少)</option>
+                    <option value="name">名稱 (A→Z)</option>
                 </select>
             </div>
         </header>
-        <div id="homework-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse-once"></div>
+        <div class="relative"><div id="homework-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse-once relative z-10"></div></div>
     </div>
     
     <!-- 載入動畫 -->
@@ -154,33 +213,33 @@
     </div>
 
     <!-- 作業詳細座號頁 -->
-    <div id="detail-page" class="hidden container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 page-section h-screen flex flex-col">
-        <header class="mb-6 flex-shrink-0">
+    <div id="detail-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section h-screen flex flex-col">
+        <header class="mb-6 flex-shrink-0 relative z-10 p-6 glass-card rounded-3xl">
             <button id="back-to-main-btn" class="text-slate-400 hover:text-indigo-600 font-bold mb-4 block cursor-pointer transition-colors flex items-center gap-1 text-sm tracking-wide">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 返回作業列表
             </button>
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <h1 id="detail-homework-name" class="text-3xl sm:text-4xl font-black text-slate-900 truncate mr-4 tracking-tight"></h1>
                 <div class="flex gap-2 flex-shrink-0">
-                    <button id="show-all-done-btn" class="bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-bold py-2 px-4 text-sm rounded-xl shadow-sm hover:bg-emerald-500 hover:text-white transition-all transform hover:-translate-y-0.5 whitespace-nowrap">檢視完成名單</button>
+                    <button id="show-all-done-btn" class="bg-emerald-50 text-emerald-600 border border-emerald-200/60 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-emerald-500 hover:text-white transition-all transform hover:-translate-y-0.5 whitespace-nowrap">檢視完成名單</button>
                 </div>
             </div>
             
-            <div class="mt-5 p-4 bg-white rounded-2xl border border-slate-200/60 flex flex-wrap items-center gap-3 shadow-sm">
+            <div class="mt-5 p-4 glass-card rounded-3xl border border-slate-200/60 flex flex-wrap items-center gap-3 shadow-sm">
                 <span class="text-sm font-bold text-slate-700 flex items-center gap-1.5">
                     <svg class="w-4 h-4 text-indigo-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clip-rule="evenodd" /></svg>
                     全班狀態套用：
                 </span>
-                <select id="batch-status-select" class="text-sm rounded-xl border-slate-200 p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold bg-slate-50"></select>
+                <select id="batch-status-select" class="text-base font-bold rounded-2xl border-slate-200 p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold bg-slate-50"></select>
                 <button id="batch-status-btn" class="bg-indigo-600 text-white text-sm px-5 py-2 rounded-xl shadow-md hover:bg-indigo-700 transition-colors font-bold tracking-wide">全部套用</button>
                 <span class="text-xs text-slate-400 ml-auto hidden sm:block font-medium">※ 將一鍵改變全班所有座號的作業狀態</span>
             </div>
 
             <!-- 點收模式切換與掃描區塊 -->
-            <div id="check-mode-section" class="mt-4 bg-white rounded-2xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col w-full transition-all">
+            <div id="check-mode-section" class="mt-4 glass-card rounded-3xl border border-slate-200/60 shadow-sm overflow-hidden flex flex-col w-full transition-all">
                 <!-- 模式切換按鈕 -->
                 <div class="flex bg-slate-100/80 p-1.5 gap-1.5">
-                    <button id="mode-manual-btn" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm bg-white shadow-sm border border-slate-200/80 text-indigo-600 transition-all">👆 手動點擊模式</button>
+                    <button id="mode-manual-btn" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm glass-card shadow-sm border border-white/60 text-indigo-600 transition-all">👆 手動點擊模式</button>
                     <button id="mode-scan-btn" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border border-transparent transition-all">📠 條碼掃描模式</button>
                 </div>
                 <!-- 掃描專屬設定區 (預設隱藏) -->
@@ -190,9 +249,9 @@
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
                             掃描後變更為：
                         </span>
-                        <select id="scan-target-status-select" class="text-sm rounded-xl border-slate-200 p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold bg-white shadow-sm cursor-pointer"></select>
+                        <select id="scan-target-status-select" class="text-base font-bold rounded-2xl border-slate-200 p-2 focus:ring-indigo-500 focus:border-indigo-500 font-bold bg-white shadow-sm cursor-pointer"></select>
                     </div>
-                    <input type="text" id="barcode-scan-input" class="text-sm rounded-xl border-slate-200 p-2.5 focus:ring-indigo-500 focus:border-indigo-500 font-mono bg-white shadow-inner flex-grow transition-colors min-w-[200px]" placeholder="請將游標停在此處並掃描條碼..." autocomplete="off">
+                    <input type="text" id="barcode-scan-input" class="text-base font-bold rounded-2xl border-slate-200 p-2.5 focus:ring-indigo-500 focus:border-indigo-500 font-mono bg-white shadow-inner flex-grow transition-colors min-w-[200px]" placeholder="請將游標停在此處並掃描條碼..." autocomplete="off">
                 </div>
             </div>
 
@@ -205,56 +264,56 @@
     </div>
 
     <!-- 學生詳情統計頁 -->
-    <div id="student-details-page" class="hidden container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 page-section">
-        <header class="mb-8 flex flex-col gap-4">
+    <div id="student-details-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section">
+        <header class="mb-8 flex flex-col gap-4 relative z-10 p-6 glass-card rounded-3xl">
             <div>
                  <button id="back-from-student-details-btn" class="text-slate-400 hover:text-indigo-600 font-bold mb-3 cursor-pointer flex items-center gap-1 text-sm tracking-wide">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 返回作業列表
                  </button>
                 <div class="flex justify-between items-center flex-wrap gap-4 mt-2">
-                    <h1 id="student-details-title" class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">學生詳情統計</h1>
-                    <button id="show-overall-all-done-btn" class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-bold py-2 px-5 text-sm rounded-xl shadow-md shadow-indigo-500/10 hover:shadow-xl transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
+                    <h1 id="student-details-title" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-slate-800 to-slate-500 tracking-tight">學生詳情統計</h1>
+                    <button id="show-overall-all-done-btn" class="bg-gradient-to-r from-indigo-500 to-blue-600 text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-md shadow-indigo-500/10 hover:shadow-xl transition-all transform hover:-translate-y-0.5 whitespace-nowrap">
                         🏆 檢視全勤學生名單
                     </button>
                 </div>
             </div>
              <div class="flex justify-end items-center gap-2">
                 <label for="sort-student-detail" class="text-xs font-bold text-slate-400 uppercase tracking-wider">排序方式：</label>
-                <select id="sort-student-detail" class="text-sm rounded-xl border-slate-200 bg-white font-semibold text-slate-600 py-1.5 px-3">
+                <select id="sort-student-detail" class="text-base font-bold rounded-2xl border-slate-200 bg-white font-semibold text-slate-600 py-1.5 px-3">
                     <option value="number">座號 (小→大)</option>
                     <option value="missing">缺交數量 (多→少)</option>
                 </select>
             </div>
         </header>
-        <div id="student-details-list" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
+        <div id="student-details-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"></div>
     </div>
 
     <!-- 作業種類管理頁 -->
-    <div id="homework-types-page" class="hidden container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 page-section">
-        <header class="mb-8">
+    <div id="homework-types-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section">
+        <header class="mb-8 relative z-10 p-6 glass-card rounded-3xl">
             <button id="back-from-types-btn" class="text-slate-400 hover:text-indigo-600 font-bold mb-3 cursor-pointer flex items-center gap-1 text-sm tracking-wide">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 返回作業列表
             </button>
             <div class="flex justify-between items-center mt-2">
-                <h1 class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">作業種類管理</h1>
-                <button id="add-new-type-btn" class="bg-slate-900 text-white font-bold py-2 px-5 text-sm rounded-xl shadow-md hover:bg-black transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex-shrink-0">
+                <h1 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-slate-800 to-slate-500 tracking-tight">作業種類管理</h1>
+                <button id="add-new-type-btn" class="bg-slate-900 text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-md hover:bg-black transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex-shrink-0">
                     + 新增自訂種類
                 </button>
             </div>
             <p class="text-slate-400 mt-1.5 text-sm font-medium">配置適用於不同學科的作業狀態。每個種類最多支援 4 個核心狀態切換。</p>
         </header>
-        <div id="types-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+        <div id="types-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-8"></div>
     </div>
 
     <!-- 聯絡簿頁面 -->
-    <div id="contact-book-page" class="hidden container mx-auto max-w-7xl p-5 sm:p-8 lg:p-10 page-section">
-         <header class="mb-6">
+    <div id="contact-book-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section">
+         <header class="mb-6 relative z-10 p-6 glass-card rounded-3xl">
             <button id="back-from-contact-book-btn" class="text-slate-400 hover:text-indigo-600 font-bold mb-3 cursor-pointer flex items-center gap-1 text-sm tracking-wide">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 返回作業列表
             </button>
             <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 mt-2">
                 <div class="flex-shrink-0">
-                    <h1 id="contact-book-title" class="text-3xl sm:text-4xl font-black text-slate-900 tracking-tight">聯絡簿</h1>
+                    <h1 id="contact-book-title" class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-br from-indigo-950 via-slate-800 to-slate-500 tracking-tight">聯絡簿</h1>
                     <p id="contact-book-date" class="text-slate-400 mt-1 font-bold text-sm tracking-wide"></p>
                 </div>
                 <div class="flex gap-2.5 flex-wrap items-center justify-end w-full lg:w-auto">
@@ -267,12 +326,12 @@
                         <button id="lineheight-increase-btn" class="px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-50 font-bold transition-colors" title="加大行距">↕️+</button>
                     </div>
 
-                    <button id="apply-yesterday-btn" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap">📋 套用昨日</button>
-                    <button id="open-date-picker-btn" class="bg-slate-800 text-white font-bold py-2 px-4 text-sm rounded-xl shadow-md hover:bg-slate-900 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
+                    <button id="apply-yesterday-btn" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap">📋 套用昨日</button>
+                    <button id="open-date-picker-btn" class="bg-slate-800 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-md hover:bg-slate-900 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> 選擇日期
                     </button>
-                    <button id="clear-contact-book-btn" class="bg-white text-rose-500 border border-rose-200 font-bold py-2 px-4 text-sm rounded-xl hover:bg-rose-50/50 transition-colors whitespace-nowrap">清空本日</button>
-                    <button id="clear-all-contact-book-btn" class="bg-rose-50 text-rose-600 border border-rose-200 font-bold py-2 px-4 text-sm rounded-xl hover:bg-rose-600 hover:text-white transition-all whitespace-nowrap">清空全部記錄</button>
+                    <button id="clear-contact-book-btn" class="bg-white text-rose-500 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-50/50 transition-colors whitespace-nowrap">清空本日</button>
+                    <button id="clear-all-contact-book-btn" class="bg-rose-50 text-rose-600 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-600 hover:text-white transition-all whitespace-nowrap">清空全部記錄</button>
                 </div>
             </div>
         </header>
@@ -292,7 +351,7 @@
 
     <!-- ✨ 系統管理中心 (Admin) Modal -->
     <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[100] opacity-0">
-        <div class="modal-content bg-white rounded-3xl shadow-2xl p-0 w-full max-w-5xl transform scale-95 h-[85vh] flex flex-col border border-slate-100 overflow-hidden">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-0 w-full max-w-5xl transform scale-95 h-[85vh] flex flex-col border border-slate-100 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-xl font-extrabold text-white flex items-center gap-3">
                     <span class="text-amber-400">🛡️</span> 系統管理中心
@@ -352,7 +411,7 @@
 
     <!-- 網站介紹 Modal -->
     <div id="intro-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 hidden modal z-[100] opacity-0">
-        <div class="modal-content bg-white rounded-3xl shadow-2xl shadow-slate-900/40 p-0 w-full max-w-3xl transform scale-95 max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl shadow-slate-900/40 p-0 w-full max-w-3xl transform scale-95 max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
             <div class="bg-slate-50 px-6 py-4 sm:px-8 sm:py-6 border-b border-slate-200 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-xl sm:text-2xl font-extrabold text-slate-800 flex items-center gap-3">
                     <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl"><svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253"></path></svg></span>
@@ -431,7 +490,7 @@
 
     <!-- 歡迎與偏好選擇視窗 (精靈模式) -->
     <div id="welcome-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[100] opacity-0">
-        <div class="modal-content bg-white rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-lg transform scale-95 border border-slate-100 relative overflow-hidden">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-8 sm:p-10 w-full max-w-lg transform scale-95 border border-slate-100 relative overflow-hidden">
             <!-- Step 1: 儲存方式 -->
             <div id="welcome-step-1" class="text-center sm:text-left transition-all duration-300">
                 <div class="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-6 mx-auto sm:mx-0">
@@ -442,7 +501,7 @@
                     請先選擇您的資料儲存方式。本系統支援綁定本機硬碟檔案，以及 <b>Google 帳號雲端備份</b> 功能！
                 </p>
                 <div class="flex flex-col gap-3 font-bold mt-6">
-                    <button id="welcome-google-btn" class="w-full bg-white border border-slate-200 text-slate-700 py-3 px-6 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
+                    <button id="welcome-google-btn" class="w-full glass-card border border-white/60 text-slate-700 py-3 px-6 text-sm rounded-xl shadow-sm hover:bg-slate-50 transition-all flex items-center justify-center gap-2">
                         <svg class="w-4 h-4" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg> 
                         使用 Google 帳號登入 (雲端儲存)
                     </button>
@@ -487,7 +546,7 @@
 
     <!-- 系統設定 Modal -->
     <div id="settings-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar relative">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar relative">
            <h2 class="text-2xl font-extrabold mb-6 text-slate-900">系統設定</h2>
            
            <div class="space-y-4">
@@ -495,8 +554,8 @@
                <div class="p-5 border border-purple-100 rounded-xl bg-purple-50/50 shadow-sm relative overflow-hidden">
                    <h3 class="font-bold text-purple-900 mb-3 flex items-center gap-1.5 relative z-10">👆 點收模式設定</h3>
                    <div class="flex gap-2 relative z-10">
-                       <button id="setting-mode-manual-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">手動點收</button>
-                       <button id="setting-mode-scan-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 transition-all">條碼掃描</button>
+                       <button id="setting-mode-manual-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-600 hover:bg-slate-50 transition-all">手動點收</button>
+                       <button id="setting-mode-scan-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-600 hover:bg-slate-50 transition-all">條碼掃描</button>
                    </div>
                    <p class="text-[11px] text-purple-700 mt-2 font-medium relative z-10">切換至手動點收將隱藏畫面上的條碼按鈕與掃描輸入框，讓版面更清爽。</p>
                </div>
@@ -518,7 +577,7 @@
                    </div>
                    
                    <!-- 空間使用量顯示區 -->
-                   <div id="cloud-storage-container" class="hidden mt-4 bg-white/80 backdrop-blur-sm p-3 rounded-xl border border-sky-100 shadow-sm relative z-10">
+                   <div id="cloud-storage-container" class="hidden mt-4 bg-white/80 backdrop-blur-md p-3 rounded-xl border border-sky-100 shadow-sm relative z-10">
                        <div class="flex justify-between items-center mb-2">
                            <span class="text-xs font-bold text-slate-600">雲端空間使用量 (單檔上限 1MB)</span>
                            <span id="cloud-storage-text" class="text-xs font-black text-sky-600">計算中...</span>
@@ -597,7 +656,7 @@
 
     <!-- 條碼設定 Modal -->
     <div id="barcodes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 max-h-[90vh] overflow-y-auto border border-slate-100 custom-scrollbar">
             <h2 class="text-2xl font-extrabold mb-2 text-slate-900">學生條碼設定</h2>
             <p class="text-xs text-slate-400 mb-4 font-medium">設定後可於點收頁面利用條碼槍快速登記。</p>
             
@@ -625,9 +684,28 @@
         </div>
     </div>
 
+    <!-- 編輯聯絡簿 Modal -->
+    <div id="edit-contact-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
+            <h2 class="text-2xl font-extrabold mb-6 text-slate-900">編輯聯絡簿項目</h2>
+            <form id="edit-contact-form" class="space-y-5">
+                <input type="hidden" id="edit-contact-date">
+                <input type="hidden" id="edit-contact-index">
+                <div>
+                    <label for="edit-contact-name" class="block text-sm font-bold text-slate-700 mb-1.5">聯絡事項</label>
+                    <input type="text" id="edit-contact-name" class="block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-bold transition-colors" required placeholder="在此輸入內容...">
+                </div>
+                <div class="flex justify-end gap-3 pt-3">
+                    <button type="button" class="cancel-btn px-6 py-2.5 rounded-xl border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors">取消</button>
+                    <button type="submit" class="px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-bold hover:bg-indigo-700 transition-colors shadow-md shadow-indigo-500/20">儲存</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- 新增作業 Modal -->
     <div id="add-homework-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
             <h2 id="homework-modal-title" class="text-2xl font-extrabold mb-6 text-slate-900">新增作業</h2>
             <form id="add-homework-form" class="space-y-5">
                 <input type="hidden" id="edit-homework-id">
@@ -661,7 +739,7 @@
     
     <!-- 管理班級 Modal -->
     <div id="manage-classes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-         <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
+         <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
             <h2 class="text-2xl font-extrabold mb-6 text-slate-900">管理班級</h2>
             <form id="add-class-form" class="flex gap-2 mb-6">
                  <input type="text" id="class-name" class="flex-grow block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-medium transition-colors" required placeholder="例如：六年二班">
@@ -688,16 +766,16 @@
             </div>
             <div id="calendar-grid" class="grid grid-cols-7 gap-1"></div>
             <div class="flex justify-end mt-6 pt-4 border-t border-slate-100">
-                <button id="close-date-picker-btn" class="bg-slate-100 text-slate-600 font-bold py-2 px-5 text-sm rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
+                <button id="close-date-picker-btn" class="bg-slate-100 text-slate-600 font-bold py-3.5 px-7 text-lg font-black rounded-3xl hover:bg-slate-200 transition-colors">關閉</button>
             </div>
         </div>
     </div>
 
     <!-- 已完成名單 Modal -->
     <div id="all-done-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform scale-95 border border-slate-100">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform scale-95 border border-slate-100">
             <h2 class="text-2xl font-extrabold mb-6 text-slate-900">完成名單</h2>
-            <div id="all-done-list" class="grid grid-cols-4 sm:grid-cols-6 gap-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar"></div>
+            <div id="all-done-list" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar"></div>
             <div class="flex justify-end pt-6 mt-5 border-t border-slate-100">
                 <button type="button" class="cancel-btn bg-slate-100 text-slate-600 font-bold py-2.5 px-6 text-sm rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
             </div>
@@ -706,10 +784,10 @@
     
     <!-- 全勤名單 Modal -->
     <div id="overall-all-done-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-        <div class="modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform scale-95 border border-slate-100">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform scale-95 border border-slate-100">
             <h2 class="text-2xl font-extrabold mb-2 text-slate-900">🏆 全勤榮譽名單</h2>
             <p class="text-sm text-slate-500 mb-6">此處列出在當前班級的所有作業中，狀態皆為「已完成/已繳交」的學生。</p>
-            <div id="overall-all-done-list" class="grid grid-cols-4 sm:grid-cols-6 gap-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar"></div>
+            <div id="overall-all-done-list" class="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 gap-3 max-h-96 overflow-y-auto pr-1 custom-scrollbar"></div>
             <div class="flex justify-end pt-6 mt-5 border-t border-slate-100">
                 <button type="button" class="cancel-btn bg-slate-100 text-slate-600 font-bold py-2.5 px-6 text-sm rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
             </div>
@@ -907,10 +985,10 @@
         if (manualBtn && scanBtn) {
             if (mode === 'manual') {
                 manualBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm transition-all ring-2 ring-indigo-500/20";
-                scanBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all";
+                scanBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-500 hover:bg-slate-50 transition-all";
             } else {
                 scanBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-indigo-50 border border-indigo-200 text-indigo-700 shadow-sm transition-all ring-2 ring-indigo-500/20";
-                manualBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm bg-white border border-slate-200 text-slate-500 hover:bg-slate-50 transition-all";
+                manualBtn.className = "flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-500 hover:bg-slate-50 transition-all";
             }
         }
     }
@@ -1367,7 +1445,7 @@
         summaryContainer.innerHTML = '';
         typeConfig.statuses.forEach(s => {
             const count = statusCounts[s.key] || 0; const summaryChip = document.createElement('div');
-            summaryChip.className = `flex items-center space-x-1.5 px-3 py-1 rounded-xl shadow-sm ${s.color} ${s.textColor} border border-white/20 backdrop-blur-sm`;
+            summaryChip.className = `flex items-center space-x-1.5 px-3 py-1 rounded-xl shadow-sm ${s.color} ${s.textColor} border border-white/20 backdrop-blur-md`;
             summaryChip.innerHTML = `<span class="font-medium opacity-90 text-[11px] tracking-wide">${s.text}</span><span class="font-black text-sm leading-none">${count}</span>`;
             summaryContainer.appendChild(summaryChip);
         });
@@ -1418,13 +1496,14 @@
         const sortMethod = document.getElementById('sort-homework') ? document.getElementById('sort-homework').value : 'time';
         filteredHomeworks.sort((a, b) => {
             if (sortMethod === 'time') return (b.createdAt || new Date(0)).getTime() - (a.createdAt || new Date(0)).getTime();
+            if (sortMethod === 'name') return a.name.localeCompare(b.name, 'zh-Hant');
             if (sortMethod === 'missing') return ((b.students || []).filter(s => !isStudentCompleted(s, b.typeId || 'default')).length) - ((a.students || []).filter(s => !isStudentCompleted(s, a.typeId || 'default')).length);
             return 0;
         });
 
         homeworkList.innerHTML = '';
         if (filteredHomeworks.length === 0) {
-            homeworkList.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 px-4"><div class="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mb-4 border border-slate-200/40 shadow-sm shadow-slate-100"><svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div><p class="text-center text-slate-400 font-semibold tracking-wide text-xs">目前的班級沒有點收項目，請點擊右上角 ✨ 新增作業</p></div>`;
+            homeworkList.innerHTML = `<div class="col-span-full flex flex-col items-center justify-center py-16 px-4"><div class="w-20 h-20 bg-gradient-to-tr from-indigo-50 to-rose-50 rounded-3xl flex items-center justify-center mb-4 border border-white/60 shadow-lg shadow-indigo-500/10 animate-[bounce_3s_infinite]"><svg class="w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 13h6m-3-3v6m5 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg></div><p class="text-center text-slate-400 font-semibold tracking-wide text-xs">目前的班級沒有點收項目，請點擊右上角 ✨ 新增作業</p></div>`;
         } else {
             filteredHomeworks.forEach(hw => {
                 const typeId = hw.typeId || 'default'; const typeConfig = getHomeworkType(typeId);
@@ -1432,7 +1511,7 @@
                 const completedCount = (hw.students || []).filter(s => isStudentCompleted(s, typeId)).length;
                 let summaryHtml = '';
                 if (completedCount === (hw.students || []).length && (hw.students || []).length > 0) {
-                    summaryHtml = `<div class="text-emerald-600 font-bold bg-emerald-50/70 border border-emerald-200/50 px-3 py-1 rounded-xl text-[10px] inline-flex items-center gap-1">🎉 全班已到齊</div>`;
+                    summaryHtml = `<div class="text-emerald-600 font-black bg-emerald-50/70 border border-emerald-200/50 px-4 py-2 rounded-2xl text-base inline-flex items-center gap-1">🎉 全班已到齊</div>`;
                 } else {
                     summaryHtml = typeConfig.statuses.filter(s => statusCounts[s.key] > 0).map(s => {
                         let textClass = 'text-slate-600 bg-slate-100/80';
@@ -1441,12 +1520,12 @@
                         else if(s.color.includes('yellow') || s.color.includes('amber')) textClass = 'text-amber-700 bg-amber-50/80 border-amber-100/50';
                         else if(s.color.includes('red') || s.color.includes('rose')) textClass = 'text-rose-600 bg-rose-50/60 border-rose-100/50';
                         else if(s.color.includes('purple')) textClass = 'text-purple-600 bg-purple-50/60 border-purple-100/50';
-                        return `<span class="inline-flex items-center text-[10px] font-bold border border-transparent px-2 py-1 rounded-lg ${textClass}">${s.text}<span class="ml-1 opacity-80 font-black">${statusCounts[s.key]}</span></span>`;
+                        return `<span class="inline-flex items-center text-base font-black border border-transparent px-4 py-2 rounded-2xl ${textClass}">${s.text}<span class="ml-1 opacity-80 font-black">${statusCounts[s.key]}</span></span>`;
                     }).join('');
                 }
 
                 const hwItem = document.createElement('div');
-                hwItem.className = 'bg-white rounded-2xl border border-slate-200/70 p-5 cursor-pointer shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 hover:border-indigo-200/80 transition-all duration-300 group relative overflow-hidden active:scale-[0.99] hover-shimmer';
+                hwItem.className = 'glass-card rounded-3xl border border-slate-200/70 p-5 sm:p-6 cursor-pointer shadow-sm hover:shadow-xl hover:shadow-indigo-500/5 hover:-translate-y-1 hover:border-indigo-200/80 transition-all duration-300 group relative overflow-hidden active:scale-[0.99] hover-shimmer';
                 hwItem.dataset.id = hw.id;
                 
                 const createdDate = (hw.createdAt instanceof Date) ? hw.createdAt.toLocaleDateString('zh-TW') : 'N/A';
@@ -1454,16 +1533,16 @@
                     <div class="absolute inset-0 bg-gradient-to-r from-transparent via-indigo-50/20 to-transparent -translate-x-full shimmer-bar pointer-events-none"></div>
                     <div class="flex justify-between items-start relative z-10">
                         <div class="flex items-center gap-2 flex-grow min-w-0">
-                             <span class="text-[9px] font-black bg-slate-100 text-slate-400 tracking-wider px-2 py-0.5 rounded-md whitespace-nowrap uppercase">${typeConfig.name}</span>
-                            <h2 class="text-base font-black text-slate-800 truncate tracking-tight group-hover:text-indigo-600 transition-colors" title="${hw.name}">${hw.name}</h2>
+                             <span class="text-sm font-black bg-slate-100 text-slate-400 tracking-wider px-2.5 py-1 rounded-xl whitespace-nowrap uppercase">${typeConfig.name}</span>
+                            <h2 class="text-2xl font-black text-slate-800 truncate tracking-tight group-hover:text-indigo-600 transition-colors" title="${hw.name}">${hw.name}</h2>
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                            <button data-id="${hw.id}" class="edit-hw-btn text-slate-400 hover:text-indigo-600 p-1.5 rounded-lg hover:bg-indigo-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
-                            <button data-id="${hw.id}" class="delete-hw-btn text-slate-400 hover:text-rose-600 p-1.5 rounded-lg hover:bg-rose-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>
+                            <button data-id="${hw.id}" class="edit-hw-btn text-slate-400 hover:text-indigo-600 p-3 rounded-2xl hover:bg-indigo-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
+                            <button data-id="${hw.id}" class="delete-hw-btn text-slate-400 hover:text-rose-600 p-3 rounded-2xl hover:bg-rose-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>
                         </div>
                     </div>
-                    <div class="flex justify-between items-center text-[10px] font-bold text-slate-400 mt-2 tracking-wider relative z-10"><span>👥 名單 ${(hw.students || []).length} 人</span><span>📅 ${createdDate}</span></div>
-                    <div class="mt-3 flex flex-wrap gap-1 relative z-10">${summaryHtml}</div>
+                    <div class="flex justify-between items-center text-sm font-bold text-slate-400 mt-4 tracking-wider relative z-10"><span>👥 名單 ${(hw.students || []).length} 人</span><span>📅 ${createdDate}</span></div>
+                    <div class="mt-5 flex flex-wrap gap-2 relative z-10">${summaryHtml}</div>
                 `;
                 homeworkList.appendChild(hwItem);
             });
@@ -1535,7 +1614,7 @@
         studentDetailsList.innerHTML = '';
         const filteredHomeworks = appData.homeworks.filter(hw => hw.classId === currentClassId);
 
-        if(filteredHomeworks.length === 0) { studentDetailsList.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10 font-bold text-sm">目前此班級尚無登錄作業。</div>'; return; }
+        if(filteredHomeworks.length === 0) { studentDetailsList.innerHTML = '<div class="col-span-full text-center text-slate-400 py-10 font-bold text-sm glass-card rounded-3xl m-2">目前此班級尚無登錄作業。</div>'; return; }
 
         const studentData = []; let maxStudentCount = 0;
         filteredHomeworks.forEach(hw => { (hw.students || []).forEach(s => { maxStudentCount = Math.max(maxStudentCount, s.seat); }); });
@@ -1565,12 +1644,12 @@
             if (data.issues.length === 0) return;
             hasIssues = true;
             const studentCard = document.createElement('div');
-            studentCard.className = 'bg-white rounded-2xl shadow-sm border border-slate-200/60 p-4 hover:shadow-md transition-all';
-            const issuesHtml = data.issues.map(issue => `<span class="mr-2 inline-block bg-slate-50 border border-slate-200/40 rounded-xl px-2 py-1 mb-1.5 text-[11px]"><span class="homework-link font-black ${issue.colorClass} cursor-pointer hover:underline" data-id="${issue.hwId}">${issue.hwName}</span> <span class="text-[9px] font-bold opacity-50 ml-1">(${issue.statusText})</span></span>`).join('');
+            studentCard.className = 'glass-card rounded-3xl shadow-sm border border-slate-200/60 p-6 sm:p-8 hover:shadow-md transition-all';
+            const issuesHtml = data.issues.map(issue => `<span class="mr-2 inline-block bg-slate-50 border border-slate-200/40 rounded-xl px-3 py-1.5 mb-2 text-sm"><span class="homework-link font-black ${issue.colorClass} cursor-pointer hover:underline" data-id="${issue.hwId}">${issue.hwName}</span> <span class="text-xs font-bold opacity-50 ml-1">(${issue.statusText})</span></span>`).join('');
             studentCard.innerHTML = `
-                <h3 class="text-base font-black text-slate-800 flex justify-between items-center mb-2.5">
-                    <span class="bg-slate-100 px-2 py-1 rounded-xl">${data.seat} 號</span>
-                    <span class="text-[11px] font-bold text-rose-500 bg-rose-50 px-2 py-1 rounded-xl border border-rose-100">未完成: ${data.issues.length}</span>
+                <h3 class="text-xl font-black text-slate-800 flex justify-between items-center mb-4">
+                    <span class="bg-slate-100 px-3 py-1.5 rounded-xl">${data.seat} 號</span>
+                    <span class="text-sm font-bold text-rose-500 bg-rose-50 px-3 py-1.5 rounded-xl border border-rose-100">未完成: ${data.issues.length}</span>
                 </h3>
                 <div class="mt-1 flex flex-wrap">${issuesHtml}</div>
             `;
@@ -1584,7 +1663,7 @@
         const list = document.getElementById('types-list'); if(!list) return; list.innerHTML = '';
         appData.homeworkTypes.forEach((type, typeIndex) => {
             const card = document.createElement('div');
-            card.className = 'bg-white rounded-2xl shadow-sm border border-slate-200/60 p-5 hover:shadow-md transition-shadow relative overflow-hidden';
+            card.className = 'glass-card rounded-3xl shadow-sm border border-slate-200/60 p-6 sm:p-8 hover:shadow-md transition-shadow relative overflow-hidden';
             const statusesHtml = type.statuses.map((status, statusIndex) => {
                 return `
                     <div class="flex items-center gap-2 mb-2 bg-slate-50 p-2 rounded-xl border border-slate-200/40">
@@ -1624,7 +1703,7 @@
 
         items.forEach((item, index) => {
             const itemEl = document.createElement('div');
-            itemEl.className = 'flex items-start justify-between group p-2.5 rounded-xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10';
+            itemEl.className = 'flex items-start justify-between group p-3 rounded-2xl hover:bg-white/5 transition-all border border-transparent hover:border-white/10';
             itemEl.innerHTML = `
                 <div class="flex-grow pt-0.5"><span class="mr-2 font-bold opacity-60">${index + 1}.</span><span class="whitespace-pre-wrap">${item}</span></div>
                 <div class="flex gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all ml-3 flex-shrink-0 bg-slate-900/60 backdrop-blur-md rounded-xl p-1 border border-white/10 shadow-xl">
@@ -1696,7 +1775,7 @@
             else {
                 keys.forEach(k => {
                     const dateStr = k.replace('hw_backup_', ''); const btn = document.createElement('button');
-                    btn.className = 'w-full bg-white border border-slate-200 text-slate-700 text-[11px] font-bold py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors flex justify-between items-center shadow-sm';
+                    btn.className = 'w-full glass-card border border-white/60 text-slate-700 text-[11px] font-bold py-2 px-3 rounded-xl hover:bg-slate-50 transition-colors flex justify-between items-center shadow-sm';
                     btn.innerHTML = `<span class="flex items-center gap-1.5 text-slate-500">📅 ${dateStr}</span> <span class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded-lg text-[9px] shadow-sm transition-colors">倒退還原</span>`;
                     btn.onclick = () => {
                         showConfirmModal('自動備份覆蓋還原', `確定要將所有班級與作業還原至 ${dateStr} 嗎？目前的修改將被完全洗掉！`, async () => {
@@ -1829,7 +1908,7 @@
 
         bindClick('show-add-modal-btn', () => {
             const modal = document.getElementById('add-homework-modal');
-            document.getElementById('homework-modal-title').textContent = '新增作業'; modal.querySelector('form').reset(); document.getElementById('edit-homework-id').value = '';
+            document.getElementById('homework-modal-title').textContent = '新增作業'; document.getElementById('student-count').setAttribute('required', 'required'); modal.querySelector('form').reset(); document.getElementById('edit-homework-id').value = '';
             document.getElementById('student-count-container').style.display = 'grid'; document.getElementById('homework-type-container').style.display = 'block'; document.getElementById('missing-seats-hint').style.display = 'block';
             updateTypeSelects(); 
             if (currentClassId) {
@@ -1925,11 +2004,11 @@
         const modeManualBtn = document.getElementById('mode-manual-btn'), modeScanBtn = document.getElementById('mode-scan-btn'), scanContainer = document.getElementById('scan-mode-container');
         const switchMode = (mode) => {
             if (mode === 'manual') {
-                modeManualBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm bg-white shadow-sm border border-slate-200/80 text-indigo-600 transition-all";
+                modeManualBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm glass-card shadow-sm border border-white/60 text-indigo-600 transition-all";
                 modeScanBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border border-transparent transition-all";
                 scanContainer.classList.add('hidden');
             } else {
-                modeScanBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm bg-white shadow-sm border border-slate-200/80 text-indigo-600 transition-all";
+                modeScanBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm glass-card shadow-sm border border-white/60 text-indigo-600 transition-all";
                 modeManualBtn.className = "flex-1 py-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border border-transparent transition-all";
                 scanContainer.classList.remove('hidden'); setTimeout(() => { const scanInput = document.getElementById('barcode-scan-input'); if(scanInput) scanInput.focus(); }, 100);
             }
@@ -2144,7 +2223,7 @@
         if(hwListEl) hwListEl.addEventListener('click', (e) => {
             const deleteBtn = e.target.closest('.delete-hw-btn'), editBtn = e.target.closest('.edit-hw-btn');
             if (deleteBtn) { e.stopPropagation(); const homeworkId = deleteBtn.dataset.id; const hw = appData.homeworks.find(h => h.id === homeworkId); showConfirmModal('刪除作業', `確定移除「${hw.name}」嗎？`, async () => { appData.homeworks = appData.homeworks.filter(h => h.id !== homeworkId); await saveData(); window.showToast("已刪除", "info"); renderHomeworkList(); }); return; }
-            if (editBtn) { e.stopPropagation(); const homeworkId = editBtn.dataset.id; const hw = appData.homeworks.find(h => h.id === homeworkId); const modal = document.getElementById('add-homework-modal'); document.getElementById('homework-modal-title').textContent = '更改作業名稱'; modal.querySelector('form').reset(); document.getElementById('homework-name').value = hw ? hw.name : ''; document.getElementById('edit-homework-id').value = homeworkId; document.getElementById('student-count-container').style.display = 'none'; document.getElementById('homework-type-container').style.display = 'none'; document.getElementById('missing-seats-hint').style.display = 'none'; openModal(modal); return; }
+            if (editBtn) { e.stopPropagation(); const homeworkId = editBtn.dataset.id; const hw = appData.homeworks.find(h => h.id === homeworkId); const modal = document.getElementById('add-homework-modal'); document.getElementById('homework-modal-title').textContent = '更改作業名稱'; modal.querySelector('form').reset(); document.getElementById('homework-name').value = hw ? hw.name : ''; document.getElementById('edit-homework-id').value = homeworkId; document.getElementById('student-count-container').style.display = 'none'; document.getElementById('student-count').removeAttribute('required'); document.getElementById('homework-type-container').style.display = 'none'; document.getElementById('missing-seats-hint').style.display = 'none'; openModal(modal); return; }
             const hwItem = e.target.closest('[data-id]'); if (hwItem) { document.getElementById('detail-page').dataset.from = 'main-page'; showDetailPage(hwItem.dataset.id); }
         });
         
@@ -2165,12 +2244,38 @@
 
         bindSubmit('add-contact-item-form', async (e) => { e.preventDefault(); const input = document.getElementById('contact-book-input'), newItem = input.value.trim(), dateString = formatDate(selectedDate, 'YYYY-MM-DD'); if (newItem && currentClassId) { const currentClass = appData.classes.find(c => c.id === currentClassId); if (!currentClass) return; if(!currentClass.contactBook) currentClass.contactBook = {}; if(!currentClass.contactBook[dateString]) currentClass.contactBook[dateString] = []; currentClass.contactBook[dateString].push(newItem); await saveData(); renderContactBookItems(); input.value = ''; window.showToast("已寫上黑板！", "success"); } });
 
+        bindSubmit('edit-contact-form', async (e) => {
+            e.preventDefault();
+            const index = parseInt(document.getElementById('edit-contact-index').value);
+            const dateString = document.getElementById('edit-contact-date').value;
+            const newText = document.getElementById('edit-contact-name').value.trim();
+            closeModal(document.getElementById('edit-contact-modal'));
+            if (newText && currentClassId) {
+                const currentClass = appData.classes.find(c => c.id === currentClassId);
+                if (currentClass && currentClass.contactBook[dateString]) {
+                    currentClass.contactBook[dateString][index] = newText;
+                    await saveData();
+                    renderContactBookItems();
+                    window.showToast("修改成功！");
+                }
+            }
+        });
+
         const blackboardEl = document.getElementById('blackboard-content');
         if(blackboardEl) blackboardEl.addEventListener('click', async (e) => {
             if (!currentClassId) return; const currentClass = appData.classes.find(c => c.id === currentClassId), dateString = formatDate(selectedDate, 'YYYY-MM-DD');
             const deleteBtn = e.target.closest('.delete-contact-item-btn'); if (deleteBtn) { currentClass.contactBook[dateString] = currentClass.contactBook[dateString].filter((_, index) => index !== parseInt(deleteBtn.dataset.index)); await saveData(); renderContactBookItems(); window.showToast("已擦除", "info"); return; }
-            const editBtn = e.target.closest('.edit-contact-btn'); if (editBtn) { const index = parseInt(editBtn.dataset.index), newText = prompt('請修改：', currentClass.contactBook[dateString][index]); if (newText && newText.trim() !== '') { currentClass.contactBook[dateString][index] = newText.trim(); await saveData(); renderContactBookItems(); window.showToast("修改成功！"); } return; }
-            const toHwBtn = e.target.closest('.to-hw-btn'); if (toHwBtn) { const index = parseInt(toHwBtn.dataset.index), modal = document.getElementById('add-homework-modal'); document.getElementById('homework-modal-title').textContent = '新增作業'; modal.querySelector('form').reset(); document.getElementById('homework-name').value = currentClass.contactBook[dateString][index]; document.getElementById('edit-homework-id').value = ''; document.getElementById('student-count-container').style.display = 'grid'; document.getElementById('homework-type-container').style.display = 'block'; document.getElementById('missing-seats-hint').style.display = 'block'; updateTypeSelects(); if (currentClass && currentClass.lastMaxSeat) { document.getElementById('student-count').value = currentClass.lastMaxSeat; document.getElementById('homework-missing-seats').value = currentClass.lastMissingSeats || ''; } else { const classHws = appData.homeworks.filter(h => h.classId === currentClassId); if(classHws.length > 0) { let maxSeat = 0; (classHws[classHws.length-1].students || []).forEach(s => maxSeat = Math.max(maxSeat, s.seat)); document.getElementById('student-count').value = maxSeat || 30; } else document.getElementById('student-count').value = 30; } openModal(modal); }
+            const editBtn = e.target.closest('.edit-contact-btn'); if (editBtn) {
+                const index = parseInt(editBtn.dataset.index);
+                const text = currentClass.contactBook[dateString][index];
+                const modal = document.getElementById('edit-contact-modal');
+                document.getElementById('edit-contact-index').value = index;
+                document.getElementById('edit-contact-date').value = dateString;
+                document.getElementById('edit-contact-name').value = text;
+                openModal(modal);
+                return;
+            }
+            const toHwBtn = e.target.closest('.to-hw-btn'); if (toHwBtn) { const index = parseInt(toHwBtn.dataset.index), modal = document.getElementById('add-homework-modal'); document.getElementById('homework-modal-title').textContent = '新增作業'; document.getElementById('student-count').setAttribute('required', 'required'); modal.querySelector('form').reset(); document.getElementById('homework-name').value = currentClass.contactBook[dateString][index]; document.getElementById('edit-homework-id').value = ''; document.getElementById('student-count-container').style.display = 'grid'; document.getElementById('homework-type-container').style.display = 'block'; document.getElementById('missing-seats-hint').style.display = 'block'; updateTypeSelects(); if (currentClass && currentClass.lastMaxSeat) { document.getElementById('student-count').value = currentClass.lastMaxSeat; document.getElementById('homework-missing-seats').value = currentClass.lastMissingSeats || ''; } else { const classHws = appData.homeworks.filter(h => h.classId === currentClassId); if(classHws.length > 0) { let maxSeat = 0; (classHws[classHws.length-1].students || []).forEach(s => maxSeat = Math.max(maxSeat, s.seat)); document.getElementById('student-count').value = maxSeat || 30; } else document.getElementById('student-count').value = 30; } openModal(modal); }
         });
 
         bindClick('clear-contact-book-btn', () => { if (!currentClassId) return; showConfirmModal('清空本日', `確定清空 ${formatDate(selectedDate)} 嗎？`, async () => { appData.classes.find(c => c.id === currentClassId).contactBook[formatDate(selectedDate, 'YYYY-MM-DD')] = []; await saveData(); renderContactBookItems(); window.showToast("已清空", "info"); }); });
