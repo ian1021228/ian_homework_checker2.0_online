@@ -113,6 +113,16 @@
     </script>
 </head>
 <body class="text-slate-800 antialiased overflow-x-hidden relative">
+    <!-- Admin View Mode Banner -->
+    <div id="admin-view-banner" class="hidden fixed top-0 left-0 w-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-lg z-[200] flex justify-between items-center px-4 py-2 sm:px-6 sm:py-3">
+        <div class="flex items-center gap-2">
+            <span class="animate-pulse">🔴</span>
+            <span class="font-black text-sm sm:text-base tracking-wide" id="admin-view-text">目前為管理員檢視模式</span>
+        </div>
+        <button id="exit-admin-view-btn" class="bg-white/20 hover:bg-white/30 text-white px-4 py-1.5 rounded-xl font-bold text-sm transition-colors border border-white/30 backdrop-blur-sm">
+            結束檢視並返回後台
+        </button>
+    </div>
     
     <!-- Decorative Background Mesh Orbs (Fixed) -->
     <div class="fixed top-[-10%] left-[-10%] w-[45%] h-[45%] rounded-full bg-indigo-500/20 blur-[120px] pointer-events-none z-0"></div>
@@ -351,7 +361,7 @@
 
     <!-- ✨ 系統管理中心 (Admin) Modal -->
     <div id="admin-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[100] opacity-0">
-        <div class="modal-content glass-card rounded-3xl shadow-2xl p-0 w-full max-w-5xl transform scale-95 h-[85vh] flex flex-col border border-slate-100 overflow-hidden">
+        <div class="modal-content glass-card rounded-3xl shadow-2xl p-0 w-full max-w-[96vw] transform scale-95 h-[96vh] flex flex-col border border-slate-100 overflow-hidden">
             <div class="bg-slate-900 px-6 py-4 flex justify-between items-center flex-shrink-0">
                 <h2 class="text-xl font-extrabold text-white flex items-center gap-3">
                     <span class="text-amber-400">🛡️</span> 系統管理中心
@@ -409,39 +419,6 @@
         </div>
     </div>
 
-    <!-- 查看資料 Modal -->
-    <div id="admin-view-data-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[110] opacity-0">
-        <div class="bg-white rounded-3xl shadow-2xl p-6 md:p-8 w-full max-w-4xl transform scale-95 transition-all flex flex-col h-[80vh] border-2 border-slate-100">
-            <div class="flex justify-between items-center mb-6">
-                <div>
-                    <h2 class="text-2xl font-black text-slate-800 tracking-tight flex items-center gap-2">
-                        <span class="bg-indigo-100 text-indigo-600 p-2 rounded-xl">👁️</span> 查看用戶資料
-                    </h2>
-                    <p class="text-slate-500 font-bold text-sm mt-1" id="admin-view-data-user"></p>
-                </div>
-                <button class="cancel-btn text-slate-400 hover:text-slate-600 hover:bg-slate-100 p-2 rounded-full transition-colors">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-            
-            <div class="flex-grow overflow-auto bg-slate-50 rounded-xl border border-slate-200 p-4 relative">
-                <pre id="admin-view-data-content" class="text-xs font-mono text-slate-700 whitespace-pre-wrap"></pre>
-                <div id="admin-view-data-loading" class="absolute inset-0 bg-slate-50/80 backdrop-blur-sm flex items-center justify-center hidden">
-                    <div class="text-indigo-600 font-bold flex items-center gap-2">
-                        <svg class="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle>
-                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                        載入中...
-                    </div>
-                </div>
-            </div>
-            
-            <div class="mt-6 flex justify-end">
-                <button class="cancel-btn bg-slate-100 text-slate-600 font-bold py-2 px-6 rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
-            </div>
-        </div>
-    </div>
     <!-- 網站介紹 Modal -->
     <div id="intro-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-lg flex items-center justify-center p-4 sm:p-6 hidden modal z-[100] opacity-0">
         <div class="modal-content glass-card rounded-3xl shadow-2xl shadow-slate-900/40 p-0 w-full max-w-3xl transform scale-95 max-h-[90vh] flex flex-col border border-slate-100 overflow-hidden">
@@ -968,6 +945,8 @@
     const STATUS_COLORS = [ { class: 'bg-slate-200', textClass: 'text-slate-500', name: '灰' }, { class: 'bg-blue-500', textClass: 'text-white', name: '藍' }, { class: 'bg-emerald-500', textClass: 'text-white', name: '綠' }, { class: 'bg-amber-400', textClass: 'text-amber-950', name: '黃' }, { class: 'bg-rose-500', textClass: 'text-white', name: '紅' }, { class: 'bg-purple-500', textClass: 'text-white', name: '紫' } ];
 
     let appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(JSON.stringify(DEFAULT_TYPES)) };
+    let adminViewModeUserId = null;
+    let adminOriginalAppData = null;
     let currentClassId = localStorage.getItem('currentClassId') || null;
     let currentHomeworkId = null;
     let selectedDate = new Date(), calendarDate = new Date();
@@ -1255,35 +1234,43 @@
                     const id = e.target.dataset.id;
                     const email = e.target.dataset.email;
                     
-                    const modal = document.getElementById('admin-view-data-modal');
-                    const contentEl = document.getElementById('admin-view-data-content');
-                    const loadingEl = document.getElementById('admin-view-data-loading');
-                    const userEl = document.getElementById('admin-view-data-user');
-                    
-                    userEl.textContent = `用戶：${email} (ID: ${id})`;
-                    contentEl.textContent = '';
-                    loadingEl.classList.remove('hidden');
-                    openModal(modal);
-                    
+                    if (!confirm(`即將進入「管理員檢視模式」\n\n這會將主畫面的資料切換為 ${email} 的資料，您將可以像該使用者一樣瀏覽與操作。\n操作會同步到該使用者的雲端存檔。\n\n確定要進入嗎？`)) {
+                        return;
+                    }
+
                     try {
+                        window.showToast("正在載入該使用者的資料...", "info");
                         const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', id, 'appData', 'mainDoc');
                         const docSnap = await getDoc(docRef);
                         
-                        if (docSnap.exists()) {
-                            const dataStr = docSnap.data().data;
-                            try {
-                                const parsedData = JSON.parse(dataStr);
-                                contentEl.textContent = JSON.stringify(parsedData, null, 2);
-                            } catch (e) {
-                                contentEl.textContent = dataStr;
-                            }
+                        if (docSnap.exists() && docSnap.data().data) {
+                            const parsedData = JSON.parse(docSnap.data().data);
+                            
+                            // Back up current admin data
+                            adminOriginalAppData = JSON.stringify(appData);
+                            adminViewModeUserId = id;
+                            
+                            // Apply user data
+                            appData = parsedData;
+                            fixDates(appData);
+                            
+                            // Update UI
+                            document.getElementById('admin-view-text').textContent = `目前正在檢視/編輯：${email}`;
+                            document.getElementById('admin-view-banner').classList.remove('hidden');
+                            
+                            // Close admin modal
+                            closeModal(document.getElementById('admin-modal'));
+                            
+                            // Refresh pages
+                            currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
+                            currentHomeworkId = null;
+                            showMainPage();
+                            window.showToast("已進入檢視模式", "success");
                         } else {
-                            contentEl.textContent = '該用戶尚未有任何儲存的資料 (mainDoc 不存在)';
+                            window.showToast("該用戶尚未有任何儲存的資料", "error");
                         }
                     } catch (err) {
-                        contentEl.textContent = '讀取資料失敗：\n' + err.message;
-                    } finally {
-                        loadingEl.classList.add('hidden');
+                        window.showToast("讀取資料失敗: " + err.message, "error");
                     }
                 });
             });
@@ -1357,7 +1344,8 @@
     async function syncDataToCloud() {
         if (!currentUser || !fbDb) return;
         try {
-            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
+            const targetUid = adminViewModeUserId || currentUser.uid;
+            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', targetUid, 'appData', 'mainDoc');
             await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
             lastCloudError = null;
         } catch (error) { console.error("Cloud sync error:", error); lastCloudError = error.message; }
@@ -1367,7 +1355,8 @@
     async function loadDataFromCloud(silent = false) {
         if (!currentUser || !fbDb) return false;
         try {
-            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', currentUser.uid, 'appData', 'mainDoc');
+            const targetUid = adminViewModeUserId || currentUser.uid;
+            const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', targetUid, 'appData', 'mainDoc');
             const docSnap = await getDoc(docRef);
             if (docSnap.exists() && docSnap.data().data) {
                 const cloudData = JSON.parse(docSnap.data().data);
@@ -1408,12 +1397,16 @@
             if (saveTimeout) clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
                 try {
-                    localStorage.setItem('homeworkAppData', JSON.stringify(appData)); runAutoBackup();
-                    if (fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
-                        const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
+                    if (adminViewModeUserId) {
+                        await syncDataToCloud();
+                    } else {
+                        localStorage.setItem('homeworkAppData', JSON.stringify(appData)); runAutoBackup();
+                        if (fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
+                            const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
+                        }
+                        await syncDataToCloud();
+                        await syncUserProfile();
                     }
-                    await syncDataToCloud();
-                    await syncUserProfile();
                 } catch (error) { console.error(error); } finally { isSaving = false; resolve(); }
             }, 300);
         });
@@ -1423,7 +1416,13 @@
         if (!fileHandle) return false;
         try {
             const file = await fileHandle.getFile(); const text = await file.text();
-            if (text) { appData = JSON.parse(text); fixDates(appData); localStorage.setItem('homeworkAppData', JSON.stringify(appData)); runAutoBackup(); return true; }
+            if (text) { 
+                appData = JSON.parse(text); 
+                fixDates(appData); 
+                localStorage.setItem('homeworkAppData', JSON.stringify(appData)); 
+                runAutoBackup(); 
+                return true; 
+            }
         } catch (e) {
             showAlertModal("連線遺失", "讀取本地實體檔案失敗，可能是檔案已被移動或刪除。系統將自動切換為暫存模式。");
             await clearFileHandle(); fileHandle = null; updateDataManagementUI();
@@ -1943,6 +1942,23 @@
 
         bindClick('intro-btn', () => openModal(document.getElementById('intro-modal')));
         
+        bindClick('exit-admin-view-btn', () => {
+            if (adminOriginalAppData) {
+                appData = JSON.parse(adminOriginalAppData);
+                fixDates(appData);
+                adminOriginalAppData = null;
+            }
+            adminViewModeUserId = null;
+            
+            document.getElementById('admin-view-banner').classList.add('hidden');
+            
+            currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
+            currentHomeworkId = null;
+            showMainPage();
+            
+            openModal(document.getElementById('admin-modal'));
+            window.showToast("已結束檢視模式，恢復您的本地資料", "success");
+        });
         bindClick('admin-btn', () => {
             openModal(document.getElementById('admin-modal'));
             loadAllUsersForAdmin();
