@@ -828,9 +828,9 @@
     <div id="name-prompt-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[110] opacity-0">
          <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
             <h2 class="text-2xl font-extrabold mb-4 text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 drop-shadow-sm">請輸入使用者暱稱</h2>
-            <p class="text-slate-500 mb-6 text-sm">請為此裝置命名 (例如：講桌電腦、我的手機)，以便於管理員辨別。</p>
+            <p class="text-slate-500 mb-6 text-sm">請填寫您的暱稱或姓名，以便於管理員辨別。</p>
             <form id="name-prompt-form" class="space-y-4">
-                 <input type="text" id="visitor-name-input" class="block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-medium transition-colors" required placeholder="未登入訪客" value="未登入訪客">
+                 <input type="text" id="visitor-name-input" class="block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-medium transition-colors" required placeholder="請輸入暱稱" value="">
                  <div class="flex gap-3">
                      <button type="button" class="close-modal flex-1 bg-slate-100 text-slate-600 py-3 px-6 text-sm rounded-xl hover:bg-slate-200 transition-colors">取消</button>
                      <button type="submit" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-5 text-sm rounded-xl shadow-md hover:bg-indigo-700 transition-colors">確認</button>
@@ -1000,6 +1000,7 @@
             updateDataManagementUI();
             
             if (user) {
+                localStorage.removeItem("visitor_name"); localStorage.removeItem("visitor_id");
                 if (user.email === 'ianw.solar@gmail.com') {
                     document.getElementById('admin-btn')?.classList.remove('hidden');
                 } else {
@@ -1027,6 +1028,7 @@
         const modal = document.getElementById('name-prompt-modal');
         const form = document.getElementById('name-prompt-form');
         const input = document.getElementById('visitor-name-input');
+        input.value = "";
         
         const cleanup = () => {
             form.removeEventListener('submit', onSubmit);
@@ -1857,6 +1859,7 @@ window.showToast = function(message, type = 'success') {
         currentHomeworkId = homeworkId; document.getElementById('detail-homework-name').textContent = hw.name;
         studentGrid.innerHTML = '';
         const count = (hw.students || []).length; if (count === 0) return; 
+        updateSummaryUI(hw);
         
         const containerWidth = studentGrid.parentElement.clientWidth - 20; 
         const headerHeight = document.querySelector('#detail-page header').offsetHeight || 150;
@@ -1906,7 +1909,6 @@ window.showToast = function(message, type = 'success') {
             `;
             studentGrid.appendChild(studentBtn);
         });
-        updateSummaryUI(hw);
         
         setTimeout(() => { const scanContainer = document.getElementById('scan-mode-container'); const scanInput = document.getElementById('barcode-scan-input'); if (scanContainer && !scanContainer.classList.contains('hidden') && scanInput) scanInput.focus(); }, 300);
     }
@@ -2446,7 +2448,6 @@ window.showToast = function(message, type = 'success') {
                     const nextIndex = (currentIndex + 1) % typeConfig.statuses.length;
                     const oldStatus = student.status; const newStatus = typeConfig.statuses[nextIndex].key;
                     hw.students[studentIndex].status = newStatus;
-                    updateSingleStudentUI(seat, oldStatus, newStatus, typeConfig); updateSummaryUI(hw); saveData();
                 }
             });
         }
@@ -2466,7 +2467,6 @@ window.showToast = function(message, type = 'success') {
                     const targetStatusKey = document.getElementById('scan-target-status-select').value;
                     const oldStatus = student.status, newStatus = targetStatusKey;
                     hw.students[studentIndex].status = newStatus;
-                    updateSingleStudentUI(foundSeat, oldStatus, newStatus, typeConfig); updateSummaryUI(hw);
                     const btn = document.getElementById(`btn-seat-${foundSeat}`); if (btn) { btn.classList.add('scale-[1.1]', 'ring-indigo-400'); setTimeout(() => btn.classList.remove('scale-[1.1]', 'ring-indigo-400'), 250); }
                     const targetStatusText = typeConfig.statuses.find(s => s.key === newStatus)?.text || '已更新';
                     window.showToast(`${foundSeat} 號更新：${targetStatusText}`, "success"); saveData();
