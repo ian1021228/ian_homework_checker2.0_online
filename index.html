@@ -9,7 +9,11 @@
     <link rel="manifest" href="./manifest.json">
     <meta name="theme-color" content="#4f46e5">
     <link class="rounded-2xl shadow-lg shadow-indigo-500/10" rel="apple-touch-icon" href="icon.png">
-
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+        }
+    </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     
@@ -72,6 +76,18 @@
             border-color: rgba(255, 255, 255, 1);
             background: rgba(255, 255, 255, 0.9);
         }
+
+        /* 🌙 Dark Mode Overrides */
+        html.dark body { background-color: #0f172a; color: #f8fafc; }
+        html.dark .glass-card { background: rgba(30, 41, 59, 0.75); border-color: rgba(255, 255, 255, 0.1); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.05); }
+        html.dark .glass-card:hover { background: rgba(30, 41, 59, 0.9); border-color: rgba(255, 255, 255, 0.15); }
+        html.dark .bg-white { background-color: #1e293b !important; }
+        html.dark .bg-slate-50, html.dark .bg-slate-100 { background-color: #0f172a !important; }
+        html.dark .text-slate-900, html.dark .text-slate-800, html.dark .text-slate-700, html.dark .text-slate-600 { color: #f1f5f9 !important; }
+        html.dark .text-slate-500, html.dark .text-slate-400 { color: #cbd5e1 !important; }
+        html.dark .border-slate-100, html.dark .border-slate-200 { border-color: #334155 !important; }
+        html.dark input, html.dark select, html.dark textarea { background-color: #1e293b !important; color: #f1f5f9 !important; border-color: #334155 !important; }
+        html.dark .modal-content, html.dark .confirm-modal-content { background-color: #1e293b !important; border-color: #334155 !important; }
         
         .btn-glow {
             position: relative;
@@ -225,13 +241,31 @@
                      <button id="show-add-modal-btn" class="btn-glow bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-500 hover:from-indigo-600 hover:via-purple-600 hover:to-indigo-600 animated-gradient-text text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-lg shadow-indigo-500/30 hover:shadow-indigo-500/50 transition-all transform hover:-translate-y-1 whitespace-nowrap tracking-wide hide-on-admin-view flex items-center gap-2"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"></path></svg>新增作業</button>
                 </div>
             </div>
-            <div class="flex justify-end items-center gap-2 mt-2 xl:mt-0">
-                <label for="sort-homework" class="text-sm font-bold uppercase tracking-wider text-slate-400">排序方式：</label>
-                <select id="sort-homework" class="text-base rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-4 cursor-pointer">
-                    <option value="time">建立時間 (新→舊)</option>
-                    <option value="missing">缺交人數 (多→少)</option>
-                    <option value="name">名稱 (A→Z)</option>
-                </select>
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mt-2 xl:mt-0 bg-white/50 p-4 rounded-2xl border border-slate-100">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto flex-1">
+                    <div class="relative flex-1 min-w-[200px]">
+                        <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                            <svg class="h-5 w-5 text-slate-400" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" /></svg>
+                        </div>
+                        <input type="text" id="search-homework" class="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-xl leading-5 bg-white placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm font-medium" placeholder="搜尋作業名稱...">
+                    </div>
+                    <select id="filter-type" class="text-sm rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-3 cursor-pointer">
+                        <option value="all">所有種類</option>
+                    </select>
+                    <div class="flex items-center gap-2">
+                        <input type="date" id="filter-date-start" class="text-sm rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-3 cursor-pointer">
+                        <span class="text-slate-400">-</span>
+                        <input type="date" id="filter-date-end" class="text-sm rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-3 cursor-pointer">
+                    </div>
+                </div>
+                <div class="flex justify-end items-center gap-2 flex-shrink-0">
+                    <label for="sort-homework" class="text-sm font-bold uppercase tracking-wider text-slate-400 hidden lg:block">排序方式：</label>
+                    <select id="sort-homework" class="text-base rounded-xl border-slate-200 shadow-sm bg-white font-semibold text-slate-600 py-2 px-4 cursor-pointer">
+                        <option value="time">建立時間 (新→舊)</option>
+                        <option value="missing">缺交人數 (多→少)</option>
+                        <option value="name">名稱 (A→Z)</option>
+                    </select>
+                </div>
             </div>
         </header>
         <div class="relative"><div id="homework-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse-once relative z-10"></div></div>
@@ -584,6 +618,24 @@
            <h2 class="text-2xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 drop-shadow-sm">系統設定</h2>
            
            <div class="space-y-4">
+               <!-- 介面顯示設定區塊 -->
+               <div class="p-5 border border-slate-200 rounded-xl bg-slate-50/50 shadow-sm relative overflow-hidden">
+                   <h3 class="font-bold text-slate-900 mb-3 flex items-center gap-1.5 relative z-10">🌙 介面顯示設定</h3>
+                   <div class="flex gap-2 relative z-10">
+                       <button id="setting-dark-mode-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-600 hover:bg-slate-50 transition-all">切換深色模式</button>
+                   </div>
+                   <p class="text-[11px] text-slate-500 mt-2 font-medium relative z-10">切換日/夜間模式，降低刺眼感。</p>
+               </div>
+
+               <!-- 自動封存設定區塊 -->
+               <div class="p-5 border border-emerald-100 rounded-xl bg-emerald-50/50 shadow-sm relative overflow-hidden">
+                   <h3 class="font-bold text-emerald-900 mb-3 flex items-center gap-1.5 relative z-10">📦 自動封存設定</h3>
+                   <div class="flex gap-2 relative z-10">
+                       <button id="setting-auto-archive-prompt-btn" class="flex-1 py-2 px-3 rounded-xl font-bold text-sm glass-card border border-white/60 text-slate-600 hover:bg-slate-50 transition-all">重設封存提示</button>
+                   </div>
+                   <p class="text-[11px] text-emerald-700 mt-2 font-medium relative z-10">當全班完成作業滿 3 天，系統會提示是否封存。若曾勾選「不再提醒」，可在此重設。</p>
+               </div>
+
                <!-- 點收模式設定區塊 -->
                <div class="p-5 border border-purple-100 rounded-xl bg-purple-50/50 shadow-sm relative overflow-hidden">
                    <h3 class="font-bold text-purple-900 mb-3 flex items-center gap-1.5 relative z-10">👆 點收模式設定</h3>
@@ -843,6 +895,22 @@
         </div>
     </div>
 
+    <!-- 自動封存提示 Modal -->
+    <div id="auto-archive-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-[60] opacity-0">
+        <div class="modal-content bg-white rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-sm transform scale-95 border border-emerald-100 transition-all">
+            <h2 class="text-2xl font-extrabold mb-3 text-emerald-600">📦 自動封存提示</h2>
+            <p id="auto-archive-message" class="text-slate-600 mb-6 text-sm font-medium leading-relaxed"></p>
+            <div class="mb-5 flex items-center gap-2">
+                <input type="checkbox" id="auto-archive-never-remind" class="w-4 h-4 text-emerald-600 rounded border-slate-300 focus:ring-emerald-500">
+                <label for="auto-archive-never-remind" class="text-sm text-slate-500 font-medium cursor-pointer">不再提醒</label>
+            </div>
+            <div class="flex justify-end gap-3">
+                <button id="auto-archive-keep" class="px-5 py-2.5 rounded-xl font-bold text-slate-500 hover:bg-slate-100 transition-colors">保留</button>
+                <button id="auto-archive-delete" class="px-5 py-2.5 rounded-xl font-bold bg-emerald-600 text-white shadow-md hover:bg-emerald-700 transition-colors">刪除封存</button>
+            </div>
+        </div>
+    </div>
+
     <!-- 確認視窗 Modal -->
     <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden confirm-modal z-[60] opacity-0">
         <div class="confirm-modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm transform scale-95 border border-slate-100">
@@ -861,6 +929,14 @@
     <footer class="fixed bottom-0 left-0 w-full bg-white/80 backdrop-blur-md border-t border-slate-200 text-slate-400 text-xs font-bold text-center py-2.5 z-20 select-none tracking-wide">
         Created by 王禹硯（ianw.solar@gmail.com）
     </footer>
+
+<script>
+    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+    } else {
+        document.documentElement.classList.remove('dark');
+    }
+</script>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
@@ -1636,7 +1712,21 @@ window.showToast = function(message, type = 'success') {
 
     function updateTypeSelects() {
         const typeSelect = document.getElementById('homework-type-select'); if (!typeSelect) return; typeSelect.innerHTML = '';
-        appData.homeworkTypes.forEach(t => { const opt = document.createElement('option'); opt.value = t.id; opt.textContent = t.name; typeSelect.appendChild(opt); });
+        const filterTypeSelect = document.getElementById('filter-type');
+        let currentFilterValue = 'all';
+        if (filterTypeSelect) {
+            currentFilterValue = filterTypeSelect.value;
+            filterTypeSelect.innerHTML = '<option value="all">所有種類</option>';
+        }
+        appData.homeworkTypes.forEach(t => { 
+            const opt = document.createElement('option'); opt.value = t.id; opt.textContent = t.name; typeSelect.appendChild(opt); 
+            if (filterTypeSelect) {
+                const fOpt = document.createElement('option'); fOpt.value = t.id; fOpt.textContent = t.name; filterTypeSelect.appendChild(fOpt);
+            }
+        });
+        if (filterTypeSelect && filterTypeSelect.querySelector(`option[value="${currentFilterValue}"]`)) {
+            filterTypeSelect.value = currentFilterValue;
+        }
     }
 
     function renderClassSelector() {
@@ -1676,6 +1766,35 @@ window.showToast = function(message, type = 'success') {
     function renderHomeworkList() {
         const homeworkList = document.getElementById('homework-list'); if (!homeworkList) return;
         let filteredHomeworks = appData.homeworks.filter(hw => hw.classId === currentClassId);
+
+        // 搜尋過濾
+        const searchQuery = document.getElementById('search-homework') ? document.getElementById('search-homework').value.trim().toLowerCase() : '';
+        const filterType = document.getElementById('filter-type') ? document.getElementById('filter-type').value : 'all';
+        const filterDateStart = document.getElementById('filter-date-start') ? document.getElementById('filter-date-start').value : '';
+        const filterDateEnd = document.getElementById('filter-date-end') ? document.getElementById('filter-date-end').value : '';
+
+        filteredHomeworks = filteredHomeworks.filter(hw => {
+            if (searchQuery && !hw.name.toLowerCase().includes(searchQuery)) return false;
+            if (filterType !== 'all' && hw.typeId !== filterType && !(filterType === 'default' && !hw.typeId)) return false;
+            
+            if (filterDateStart || filterDateEnd) {
+                const hwDate = hw.createdAt ? new Date(hw.createdAt) : new Date(0);
+                hwDate.setHours(0, 0, 0, 0);
+                
+                if (filterDateStart) {
+                    const start = new Date(filterDateStart);
+                    start.setHours(0, 0, 0, 0);
+                    if (hwDate < start) return false;
+                }
+                if (filterDateEnd) {
+                    const end = new Date(filterDateEnd);
+                    end.setHours(23, 59, 59, 999);
+                    if (hwDate > end) return false;
+                }
+            }
+            return true;
+        });
+
         const sortMethod = document.getElementById('sort-homework') ? document.getElementById('sort-homework').value : 'time';
         filteredHomeworks.sort((a, b) => {
             if (sortMethod === 'time') return (b.createdAt || new Date(0)).getTime() - (a.createdAt || new Date(0)).getTime();
@@ -1981,11 +2100,72 @@ window.showToast = function(message, type = 'success') {
 
     function restoreScroll(targetPageId) { currentPage = targetPageId; window.scrollTo({ top: scrollPositions[targetPageId] || 0, behavior: 'auto' }); }
 
+    async function checkAutoArchive() {
+        if (localStorage.getItem('autoArchiveNeverRemind') === 'true') return;
+        if (!currentClassId || !appData || !appData.homeworks) return;
+
+        const threeDaysAgo = new Date();
+        threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+        const hwToArchive = appData.homeworks.find(hw => {
+            if (hw.classId !== currentClassId) return false;
+            if (hw.archivePrompted) return false;
+            if (!hw.createdAt) return false;
+            const hwDate = new Date(hw.createdAt);
+            if (hwDate > threeDaysAgo) return false;
+            
+            const typeId = hw.typeId || 'default';
+            const students = hw.students || [];
+            if (students.length === 0) return false;
+            
+            return students.every(s => isStudentCompleted(s, typeId));
+        });
+
+        if (hwToArchive) {
+            const modal = document.getElementById('auto-archive-modal');
+            if (modal && modal.classList.contains('hidden')) {
+                document.getElementById('auto-archive-message').textContent = `作業「${hwToArchive.name}」已經全班完成滿 3 天，是否要將其刪除（封存）以保持畫面乾淨？`;
+                
+                const keepBtn = document.getElementById('auto-archive-keep');
+                const deleteBtn = document.getElementById('auto-archive-delete');
+                const neverRemindCheck = document.getElementById('auto-archive-never-remind');
+                
+                neverRemindCheck.checked = false;
+
+                const cleanup = () => { keepBtn.onclick = null; deleteBtn.onclick = null; };
+
+                keepBtn.onclick = () => {
+                    if (neverRemindCheck.checked) localStorage.setItem('autoArchiveNeverRemind', 'true');
+                    hwToArchive.archivePrompted = true;
+                    saveData();
+                    closeModal(modal);
+                    cleanup();
+                    // recursively check if there's another one
+                    setTimeout(checkAutoArchive, 500);
+                };
+
+                deleteBtn.onclick = async () => {
+                    if (neverRemindCheck.checked) localStorage.setItem('autoArchiveNeverRemind', 'true');
+                    appData.homeworks = appData.homeworks.filter(h => h.id !== hwToArchive.id);
+                    await saveData();
+                    window.showToast(`已刪除「${hwToArchive.name}」`, "success");
+                    renderHomeworkList();
+                    closeModal(modal);
+                    cleanup();
+                    setTimeout(checkAutoArchive, 500);
+                };
+
+                openModal(modal);
+            }
+        }
+    }
+
     function showMainPage(fromHistory = false) {
         hideAllPages(); const mainPageEl = document.getElementById('main-page'); if (mainPageEl) mainPageEl.classList.remove('hidden');
         if (!fromHistory) pushPageState({ page: 'main' }, '#main');
         checkAndCleanupStorage(); updateTypeSelects(); renderClassSelector(); renderHomeworkList();
         currentHomeworkId = null; document.getElementById('detail-page').dataset.from = ''; restoreScroll('main-page');
+        setTimeout(checkAutoArchive, 800);
     }
 
     function showDetailPage(homeworkId, fromHistory = false) {
@@ -2051,6 +2231,19 @@ window.showToast = function(message, type = 'success') {
         const bindClick = (id, handler) => { const el = document.getElementById(id); if (el) el.addEventListener('click', handler); };
         const bindChange = (id, handler) => { const el = document.getElementById(id); if (el) el.addEventListener('change', handler); };
         const bindSubmit = (id, handler) => { const el = document.getElementById(id); if (el) el.addEventListener('submit', handler); };
+
+        bindClick('setting-dark-mode-btn', () => {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            window.showToast(isDark ? '已切換至深色模式' : '已切換至淺色模式', 'info');
+            document.getElementById('setting-dark-mode-btn').textContent = isDark ? '切換淺色模式' : '切換深色模式';
+        });
+
+        bindClick('setting-auto-archive-prompt-btn', () => {
+            localStorage.removeItem('autoArchiveNeverRemind');
+            window.showToast('已重設自動封存提示，下次符合條件時將再次提醒。', 'success');
+        });
 
         bindClick('intro-btn', () => openModal(document.getElementById('intro-modal')));
         
@@ -2130,7 +2323,13 @@ window.showToast = function(message, type = 'success') {
         bindClick('contact-book-btn', () => showContactBookPage());
         bindClick('show-types-modal-btn', () => showHomeworkTypesPage());
         
-        bindClick('settings-btn', () => { updateDataManagementUI(); openModal(document.getElementById('settings-modal')); });
+        bindClick('settings-btn', () => { 
+            updateDataManagementUI(); 
+            const isDark = document.documentElement.classList.contains('dark');
+            const darkModeBtn = document.getElementById('setting-dark-mode-btn');
+            if (darkModeBtn) darkModeBtn.textContent = isDark ? '切換淺色模式' : '切換深色模式';
+            openModal(document.getElementById('settings-modal')); 
+        });
         
         bindClick('setting-mode-manual-btn', () => { applyCheckMode('manual'); window.showToast('已切換為手動點收模式', 'success'); });
         bindClick('setting-mode-scan-btn', () => { applyCheckMode('scan'); window.showToast('已切換為條碼掃描模式', 'success'); });
@@ -2437,6 +2636,11 @@ window.showToast = function(message, type = 'success') {
         }
 
         bindChange('sort-homework', renderHomeworkList); bindChange('sort-student-detail', renderStudentDetailsPage);
+        const searchInput = document.getElementById('search-homework');
+        if (searchInput) { searchInput.addEventListener('input', renderHomeworkList); }
+        bindChange('filter-type', renderHomeworkList);
+        bindChange('filter-date-start', renderHomeworkList);
+        bindChange('filter-date-end', renderHomeworkList);
 
         bindSubmit('add-class-form', async (e) => {
             e.preventDefault(); const className = document.getElementById('class-name').value.trim();
