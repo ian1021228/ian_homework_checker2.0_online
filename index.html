@@ -100,6 +100,8 @@
         @keyframes textGradient {
             to { background-position: 200% center; }
         }
+    .admin-viewing .hide-on-admin-view { display: none !important; pointer-events: none; }
+        .admin-viewing .disable-on-admin-view { pointer-events: none !important; opacity: 0.7; }
     </style>
 
     <script>
@@ -186,11 +188,11 @@
                      <button id="install-pwa-btn" class="hidden bg-gradient-to-r from-pink-500 to-rose-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-lg shadow-pink-500/10 hover:shadow-pink-500/20 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">⬇️ 安裝 App</button>
                      
                      <button id="intro-btn" class="glass-card border border-white/60 text-slate-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">網站介紹</button>
-                     <button id="show-types-modal-btn" class="glass-card border border-white/60 text-orange-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-orange-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">作業種類</button>
+                     <button id="show-types-modal-btn" class="glass-card border border-white/60 text-orange-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-orange-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap hide-on-admin-view">作業種類</button>
                      <button id="contact-book-btn" class="glass-card border border-white/60 text-purple-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-purple-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">聯絡簿</button>
                      <button id="student-details-btn" class="glass-card border border-white/60 text-emerald-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-emerald-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">學生詳情</button>
-                     <button id="set-barcodes-btn" class="glass-card border border-white/60 text-blue-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">🏷️ 條碼設定</button>
-                     <button id="manage-classes-btn" class="glass-card border border-white/60 text-slate-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">管理班級</button>
+                     <button id="set-barcodes-btn" class="glass-card border border-white/60 text-blue-600 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-blue-50/50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap hide-on-admin-view">🏷️ 條碼設定</button>
+                     <button id="manage-classes-btn" class="glass-card border border-white/60 text-slate-500 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap hide-on-admin-view">管理班級</button>
                      
                      <!-- 設定按鈕取代原本的資料管理 -->
                      <button id="settings-btn" class="glass-card border border-white/60 text-slate-700 font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-sm hover:bg-slate-50 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
@@ -198,7 +200,7 @@
                          設定
                      </button>
                      
-                     <button id="show-add-modal-btn" class="btn-glow bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 whitespace-nowrap tracking-wide">✨ 新增作業</button>
+                     <button id="show-add-modal-btn" class="btn-glow bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-bold py-3.5 px-7 text-lg font-black rounded-3xl shadow-lg shadow-indigo-500/20 hover:shadow-indigo-500/40 transition-all transform hover:-translate-y-0.5 whitespace-nowrap tracking-wide hide-on-admin-view">✨ 新增作業</button>
                 </div>
             </div>
             <div class="flex justify-end items-center gap-2 mt-2 xl:mt-0">
@@ -253,7 +255,7 @@
                     <button id="mode-scan-btn" class="flex-1 py-2 px-4 rounded-xl font-bold text-sm text-slate-500 hover:text-slate-700 hover:bg-slate-200/50 border border-transparent transition-all">📠 條碼掃描模式</button>
                 </div>
                 <!-- 掃描專屬設定區 (預設隱藏) -->
-                <div id="scan-mode-container" class="hidden p-4 bg-indigo-50/30 flex-wrap items-center gap-3 border-t border-slate-100">
+                <div id="scan-mode-container" class="disable-on-admin-view hidden p-4 bg-indigo-50/30 flex-wrap items-center gap-3 border-t border-slate-100">
                     <div class="flex items-center gap-2 w-full sm:w-auto">
                         <span class="text-sm font-bold text-indigo-700 flex items-center gap-1.5 whitespace-nowrap">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm14 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
@@ -299,7 +301,7 @@
     </div>
 
     <!-- 作業種類管理頁 -->
-    <div id="homework-types-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section">
+    <div id="homework-types-page" class="hidden container mx-auto w-[96%] max-w-[1600px] p-5 sm:p-8 lg:p-10 page-section hide-on-admin-view">
         <header class="mb-8 relative z-10 p-6 glass-card rounded-3xl">
             <button id="back-from-types-btn" class="text-slate-400 hover:text-indigo-600 font-bold mb-3 cursor-pointer flex items-center gap-1 text-sm tracking-wide">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg> 返回作業列表
@@ -336,12 +338,12 @@
                         <button id="lineheight-increase-btn" class="px-3.5 py-2 text-sm text-slate-500 hover:bg-slate-50 font-bold transition-colors" title="加大行距">↕️+</button>
                     </div>
 
-                    <button id="apply-yesterday-btn" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap">📋 套用昨日</button>
+                    <button id="apply-yesterday-btn" class="bg-gradient-to-r from-blue-500 to-cyan-500 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-md hover:shadow-lg transition-all transform hover:-translate-y-0.5 whitespace-nowrap hide-on-admin-view">📋 套用昨日</button>
                     <button id="open-date-picker-btn" class="bg-slate-800 text-white font-bold py-3 px-6 text-lg font-black rounded-3xl shadow-md hover:bg-slate-900 transition-all transform hover:-translate-y-0.5 whitespace-nowrap flex items-center gap-1.5">
                         <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg> 選擇日期
                     </button>
-                    <button id="clear-contact-book-btn" class="bg-white text-rose-500 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-50/50 transition-colors whitespace-nowrap">清空本日</button>
-                    <button id="clear-all-contact-book-btn" class="bg-rose-50 text-rose-600 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-600 hover:text-white transition-all whitespace-nowrap">清空全部記錄</button>
+                    <button id="clear-contact-book-btn" class="bg-white text-rose-500 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-50/50 transition-colors whitespace-nowrap hide-on-admin-view">清空本日</button>
+                    <button id="clear-all-contact-book-btn" class="bg-rose-50 text-rose-600 border border-rose-200 font-bold py-3 px-6 text-lg font-black rounded-3xl hover:bg-rose-600 hover:text-white transition-all whitespace-nowrap hide-on-admin-view">清空全部記錄</button>
                 </div>
             </div>
         </header>
@@ -351,7 +353,7 @@
                 <div class="absolute inset-0 bg-gradient-to-tr from-white/10 via-transparent to-black/35 pointer-events-none mix-blend-overlay z-10"></div>
                 <div class="absolute top-0 left-0 w-full h-5 bg-gradient-to-b from-black/50 to-transparent pointer-events-none z-10"></div>
                 <div id="blackboard-content" class="flex-grow text-slate-100 font-mono chalk-text selection:bg-yellow-500/30 relative z-20" style="font-size: 1.25rem; line-height: 1.75;"></div>
-                <form id="add-contact-item-form" class="mt-8 flex gap-3 relative z-20">
+                <form id="add-contact-item-form" class="mt-8 flex gap-3 relative z-20 hide-on-admin-view">
                     <input type="text" id="contact-book-input" class="flex-grow bg-white/10 backdrop-blur-md text-white border border-white/20 rounded-xl p-3 sm:p-4 focus:outline-none focus:ring-2 focus:ring-white/40 placeholder-white/40 transition-all font-mono shadow-inner" placeholder="在此輸入聯絡事項..." autocomplete="off">
                     <button type="submit" class="bg-white/20 hover:bg-white/30 backdrop-blur-md text-white border border-white/30 font-bold py-3.5 px-6 sm:px-8 rounded-xl shadow-lg transition-all flex-shrink-0 tracking-wider">寫上黑板</button>
                 </form>
@@ -747,6 +749,21 @@
         </div>
     </div>
     
+
+    <!-- 暱稱輸入 Modal -->
+    <div id="name-prompt-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
+         <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
+            <h2 class="text-2xl font-extrabold mb-4 text-slate-900">請輸入使用者暱稱</h2>
+            <p class="text-slate-500 mb-6 text-sm">請為此裝置命名 (例如：講桌電腦、我的手機)，以便於管理員辨別。</p>
+            <form id="name-prompt-form" class="space-y-4">
+                 <input type="text" id="visitor-name-input" class="block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-medium transition-colors" required placeholder="未登入訪客" value="未登入訪客">
+                 <div class="flex gap-3">
+                     <button type="button" class="close-modal flex-1 bg-slate-100 text-slate-600 py-3 px-6 text-sm rounded-xl hover:bg-slate-200 transition-colors">取消</button>
+                     <button type="submit" class="flex-1 bg-indigo-600 text-white font-bold py-3 px-5 text-sm rounded-xl shadow-md hover:bg-indigo-700 transition-colors">確認</button>
+                 </div>
+            </form>
+        </div>
+    </div>
     <!-- 管理班級 Modal -->
     <div id="manage-classes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
          <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
@@ -830,7 +847,8 @@
 
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
-    let unsubProfile = null; 
+    let unsubProfile = null;
+    let adminViewUnsubscribe = null; 
     let unsubServerConfig = null; 
     const globalAppId = typeof __app_id !== 'undefined' ? __app_id : 'homework-checker-pro';
     
@@ -906,7 +924,38 @@
         console.warn("Firebase 初始化失敗:", err);
     }
 
-    window.showToast = function(message, type = 'success') {
+    
+    function showNamePromptModal(callback) {
+        const modal = document.getElementById('name-prompt-modal');
+        const form = document.getElementById('name-prompt-form');
+        const input = document.getElementById('visitor-name-input');
+        
+        const cleanup = () => {
+            form.removeEventListener('submit', onSubmit);
+            modal.querySelector('.close-modal').removeEventListener('click', onCancel);
+        };
+        
+        const onSubmit = (e) => {
+            e.preventDefault();
+            const name = input.value.trim();
+            closeModal(modal);
+            cleanup();
+            callback(name);
+        };
+        
+        const onCancel = () => {
+            closeModal(modal);
+            cleanup();
+            callback(null);
+        };
+        
+        form.addEventListener('submit', onSubmit);
+        modal.querySelector('.close-modal').addEventListener('click', onCancel);
+        
+        openModal(modal);
+        input.focus();
+    }
+window.showToast = function(message, type = 'success') {
         const container = document.getElementById('toast-container');
         if (!container) return;
         const toast = document.createElement('div');
@@ -1224,6 +1273,9 @@
                         <button class="bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors force-reset-btn shadow-sm" data-id="${id}">
                             ⚠️ 重置
                         </button>
+                        <button class="bg-red-600 hover:bg-red-700 text-white border border-red-800 px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors delete-user-btn shadow-sm" data-id="${id}">
+                            🗑️ 刪除
+                        </button>
                     </td>
                 `;
                 usersList.appendChild(tr);
@@ -1248,38 +1300,51 @@
                     if (!confirm(`即將進入「管理員檢視模式」\n\n這會將主畫面的資料切換為 ${email} 的資料。\n⚠️ 此為唯讀模式，無法修改該使用者的資料。\n\n確定要進入嗎？`)) {
                         return;
                     }
-
                     try {
                         window.showToast("正在載入該使用者的資料...", "info");
                         const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', id, 'appData', 'mainDoc');
-                        const docSnap = await getDoc(docRef);
                         
-                        if (docSnap.exists() && docSnap.data().data) {
-                            const parsedData = JSON.parse(docSnap.data().data);
-                            
-                            // Back up current admin data
+                        // Back up current admin data if not already done
+                        if (!adminViewModeUserId) {
                             adminOriginalAppData = JSON.stringify(appData);
-                            adminViewModeUserId = id;
-                            
-                            // Apply user data
-                            appData = parsedData;
-                            fixDates(appData);
-                            
-                            // Update UI
-                            document.getElementById('admin-view-text').textContent = `目前正在檢視/編輯：${email}`;
-                            document.getElementById('admin-view-banner').classList.remove('hidden');
-                            
-                            // Close admin modal
-                            closeModal(document.getElementById('admin-modal'));
-                            
-                            // Refresh pages
-                            currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
-                            currentHomeworkId = null;
-                            showMainPage();
-                            window.showToast("已進入檢視模式", "success");
-                        } else {
-                            window.showToast("該用戶尚未有任何儲存的資料", "error");
                         }
+                        adminViewModeUserId = id;
+                        
+                        if (adminViewUnsubscribe) {
+                            adminViewUnsubscribe();
+                        }
+                        
+                        adminViewUnsubscribe = onSnapshot(docRef, (docSnap) => {
+                            if (docSnap.exists() && docSnap.data().data) {
+                                const parsedData = JSON.parse(docSnap.data().data);
+                                appData = parsedData;
+                                fixDates(appData);
+                                
+                                // Refresh pages if we are on one
+                                const currentPageId = document.querySelector('.page-section:not(.hidden)')?.id;
+                                if (currentPageId === 'main-page' || currentPageId === 'detail-page') {
+                                    if (!appData.classes.some(c => c.id === currentClassId)) {
+                                        currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
+                                    }
+                                    if (currentPageId === 'main-page') showMainPage();
+                                    else if (currentPageId === 'detail-page') showDetailPage(currentHomeworkId);
+                                }
+                            }
+                        });
+
+                        // Update UI
+                        document.getElementById('admin-view-text').textContent = `目前正在檢視/編輯：${email}`;
+                        document.getElementById('admin-view-banner').classList.remove('hidden');
+                        document.body.classList.add('admin-viewing');
+                        
+                        // Close admin modal
+                        closeModal(document.getElementById('admin-modal'));
+                        
+                        // Refresh pages
+                        currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
+                        currentHomeworkId = null;
+                        showMainPage();
+                        window.showToast("已進入檢視模式", "success");
                     } catch (err) {
                         window.showToast("讀取資料失敗: " + err.message, "error");
                     }
@@ -1313,6 +1378,20 @@
                         } catch(err) { window.showToast("重置失敗", "error"); }
                     } else {
                         window.showToast("2FA 密鑰驗證失敗！", "error");
+                    }
+                });
+            });
+            document.querySelectorAll('.delete-user-btn').forEach(btn => {
+                btn.addEventListener('click', async (e) => {
+                    const id = e.target.dataset.id;
+                    const pass = prompt("【危險操作】確定刪除該帳戶？此操作將不可逆。請輸入密鑰確認：");
+                    if (pass === "ianw0000") {
+                        try {
+                            const { deleteDoc, doc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+                            await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', id));
+                            await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'users', id, 'appData', 'mainDoc'));
+                            window.showToast("帳戶已刪除", "success");
+                        } catch(err) { window.showToast("刪除失敗", "error"); }
                     }
                 });
             });
@@ -1619,8 +1698,8 @@
                             <h2 class="text-2xl font-black text-slate-800 truncate tracking-tight group-hover:text-indigo-600 transition-colors" title="${hw.name}">${hw.name}</h2>
                         </div>
                         <div class="flex items-center gap-1 flex-shrink-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-                            <button data-id="${hw.id}" class="edit-hw-btn text-slate-400 hover:text-indigo-600 p-3 rounded-2xl hover:bg-indigo-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
-                            <button data-id="${hw.id}" class="delete-hw-btn text-slate-400 hover:text-rose-600 p-3 rounded-2xl hover:bg-rose-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>
+                            <button data-id="${hw.id}" class="edit-hw-btn hide-on-admin-view text-slate-400 hover:text-indigo-600 p-3 rounded-2xl hover:bg-indigo-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fill-rule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clip-rule="evenodd" /></svg></button>
+                            <button data-id="${hw.id}" class="delete-hw-btn hide-on-admin-view text-slate-400 hover:text-rose-600 p-3 rounded-2xl hover:bg-rose-50 transition-all"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm4 0a1 1 0 012 0v6a1 1 0 11-2 0V8z" clip-rule="evenodd" /></svg></button>
                         </div>
                     </div>
                     <div class="flex justify-between items-center text-sm font-bold text-slate-400 mt-4 tracking-wider relative z-10"><span>👥 名單 ${(hw.students || []).length} 人</span><span>📅 ${createdDate}</span></div>
@@ -1677,7 +1756,7 @@
             const studentBtn = document.createElement('button');
             const ringColor = (statusInfo.color || '').replace('bg-', 'ring-').replace('-500', '-200').replace('-400', '-200');
             studentBtn.id = `btn-seat-${student.seat}`;
-            studentBtn.className = `student-btn rounded-2xl shadow-sm text-center transition-all duration-300 transform hover:scale-[1.05] active:scale-90 ${statusInfo.color} ${statusInfo.textColor} flex flex-col items-center justify-center border-2 border-transparent aspect-square overflow-hidden cursor-pointer w-full h-full ring-4 ring-offset-1 ring-transparent hover:${ringColor} focus:outline-none focus:${ringColor}`;
+            studentBtn.className = `disable-on-admin-view student-btn rounded-2xl shadow-sm text-center transition-all duration-300 transform hover:scale-[1.05] active:scale-90 ${statusInfo.color} ${statusInfo.textColor} flex flex-col items-center justify-center border-2 border-transparent aspect-square overflow-hidden cursor-pointer w-full h-full ring-4 ring-offset-1 ring-transparent hover:${ringColor} focus:outline-none focus:${ringColor}`;
             studentBtn.dataset.seat = student.seat;
             const fontSizeNum = Math.max(12, bestBoxSize * 0.35); const fontSizeText = Math.max(9, bestBoxSize * 0.15); 
             studentBtn.innerHTML = `
@@ -1789,8 +1868,8 @@
             itemEl.innerHTML = `
                 <div class="flex-grow pt-0.5"><span class="mr-2 font-bold opacity-60">${index + 1}.</span><span class="whitespace-pre-wrap">${item}</span></div>
                 <div class="flex gap-1.5 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-all ml-3 flex-shrink-0 bg-slate-900/60 backdrop-blur-md rounded-xl p-1 border border-white/10 shadow-xl">
-                    <button class="to-hw-btn w-7 h-7 flex items-center justify-center rounded-lg bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white transition-all font-bold text-sm" data-index="${index}" title="轉為作業">📖</button>
-                    <button class="edit-contact-btn w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-white transition-all font-bold text-sm" data-index="${index}" title="編輯內文">✏️</button>
+                    <button class="to-hw-btn hide-on-admin-view w-7 h-7 flex items-center justify-center rounded-lg bg-teal-500/20 text-teal-300 hover:bg-teal-500 hover:text-white transition-all font-bold text-sm" data-index="${index}" title="轉為作業">📖</button>
+                    <button class="edit-contact-btn hide-on-admin-view w-7 h-7 flex items-center justify-center rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500 hover:text-white transition-all font-bold text-sm" data-index="${index}" title="編輯內文">✏️</button>
                     <button class="delete-contact-item-btn w-7 h-7 flex items-center justify-center rounded-lg bg-rose-500/20 text-rose-300 hover:bg-rose-500 hover:text-white transition-all font-bold text-base leading-none" data-index="${index}" title="擦除">&times;</button>
                 </div>
             `;
@@ -1961,7 +2040,13 @@
             }
             adminViewModeUserId = null;
             
+            if (adminViewUnsubscribe) {
+                adminViewUnsubscribe();
+                adminViewUnsubscribe = null;
+            }
+            
             document.getElementById('admin-view-banner').classList.add('hidden');
+            document.body.classList.remove('admin-viewing');
             
             currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
             currentHomeworkId = null;
@@ -2192,35 +2277,44 @@
         let tempCheckMode = null;
 
         bindClick('welcome-skip-btn', () => {
-            let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
-            if (name) localStorage.setItem('visitor_name', name.trim());
-            localStorage.setItem('storageSelected', 'true');
-            showWelcomeStep2();
-            syncUserProfile();
+            showNamePromptModal((name) => {
+                if (name) {
+                    localStorage.setItem('visitor_name', name.trim());
+                    localStorage.setItem('storageSelected', 'true');
+                    showWelcomeStep2();
+                    syncUserProfile();
+                }
+            });
         });
 
         bindClick('welcome-link-btn', async () => {
             if (!window.showSaveFilePicker) { 
                 window.showAlertModal("瀏覽器限制", "瀏覽器不支援本機存取，切換暫存模式。"); 
-                let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
-                if (name) localStorage.setItem('visitor_name', name.trim());
-                localStorage.setItem('storageSelected', 'true');
-                showWelcomeStep2();
-                syncUserProfile();
+                showNamePromptModal((name) => {
+                    if (name) {
+                        localStorage.setItem('visitor_name', name.trim());
+                        localStorage.setItem('storageSelected', 'true');
+                        showWelcomeStep2();
+                        syncUserProfile();
+                    }
+                });
                 return; 
             } 
             try { 
                 const handle = await window.showSaveFilePicker({ suggestedName: '作業點收資料.json', types: [{ description: 'JSON 檔案', accept: { 'application/json': ['.json'] } }] }); 
-                let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
-                if (name) localStorage.setItem('visitor_name', name.trim());
-                fileHandle = handle; await saveFileHandle(handle); 
-                const hasData = await syncFromFileHandle(); 
-                if (hasData) isLocalEmptyOnBoot = false;
-                await saveData(); 
-                localStorage.setItem('storageSelected', 'true');
-                window.showToast("✅ 已綁定實體檔案", "success");
-                showWelcomeStep2();
-                syncUserProfile();
+                showNamePromptModal(async (name) => {
+                    if (name) {
+                        localStorage.setItem('visitor_name', name.trim());
+                        fileHandle = handle; await saveFileHandle(handle); 
+                        const hasData = await syncFromFileHandle(); 
+                        if (hasData) isLocalEmptyOnBoot = false;
+                        await saveData(); 
+                        localStorage.setItem('storageSelected', 'true');
+                        window.showToast("✅ 已綁定實體檔案", "success");
+                        showWelcomeStep2();
+                        syncUserProfile();
+                    }
+                });
             } catch(e) { 
                 if (e.name !== 'AbortError') window.showAlertModal("無法連結檔案", e.message); 
             }
