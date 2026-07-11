@@ -1093,16 +1093,27 @@
                     lastActive: new Date().toISOString(),
                     dataSizeKB: currentDataSizeKB
                 }, { merge: true });
+                
+                // Clean up ghost guest profile if it exists
+                let visitorId = localStorage.getItem('visitor_id');
+                if (visitorId) {
+                    try { 
+                        const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
+                        await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId)); 
+                    } catch(e){}
+                    localStorage.removeItem('visitor_id');
+                }
             } else {
                 let visitorId = localStorage.getItem('visitor_id');
                 if (!visitorId) {
                     visitorId = 'guest_' + generateId();
                     localStorage.setItem('visitor_id', visitorId);
                 }
+                const visitorName = localStorage.getItem('visitor_name') || '未登入訪客';
                 const guestProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId);
                 await setDoc(guestProfileRef, {
                     email: null,
-                    displayName: '未登入訪客',
+                    displayName: visitorName,
                     isGuest: true,
                     lastActive: new Date().toISOString(),
                     dataSizeKB: currentDataSizeKB
@@ -1234,7 +1245,7 @@
                     const id = e.target.dataset.id;
                     const email = e.target.dataset.email;
                     
-                    if (!confirm(`即將進入「管理員檢視模式」\n\n這會將主畫面的資料切換為 ${email} 的資料，您將可以像該使用者一樣瀏覽與操作。\n操作會同步到該使用者的雲端存檔。\n\n確定要進入嗎？`)) {
+                    if (!confirm(`即將進入「管理員檢視模式」\n\n這會將主畫面的資料切換為 ${email} 的資料。\n⚠️ 此為唯讀模式，無法修改該使用者的資料。\n\n確定要進入嗎？`)) {
                         return;
                     }
 
@@ -1391,22 +1402,22 @@
     }
 
     function saveData() {
+        if (typeof adminViewModeUserId !== 'undefined' && adminViewModeUserId) {
+            window.showToast("唯讀模式：無法修改用戶資料", "warning");
+            return Promise.resolve();
+        }
         isSaving = true;
         isLocalEmptyOnBoot = false; 
         return new Promise((resolve) => {
             if (saveTimeout) clearTimeout(saveTimeout);
             saveTimeout = setTimeout(async () => {
                 try {
-                    if (adminViewModeUserId) {
-                        await syncDataToCloud();
-                    } else {
-                        localStorage.setItem('homeworkAppData', JSON.stringify(appData)); runAutoBackup();
-                        if (fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
-                            const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
-                        }
-                        await syncDataToCloud();
-                        await syncUserProfile();
+                    localStorage.setItem('homeworkAppData', JSON.stringify(appData)); runAutoBackup();
+                    if (typeof fileHandle !== 'undefined' && fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
+                        const writable = await fileHandle.createWritable(); await writable.write(JSON.stringify(appData)); await writable.close();
                     }
+                    await syncDataToCloud();
+                    await syncUserProfile();
                 } catch (error) { console.error(error); } finally { isSaving = false; resolve(); }
             }, 300);
         });
@@ -1923,7 +1934,7 @@
         setTimeout(() => { modal.classList.add('hidden'); const form = modal.querySelector('form'); if(form) form.reset(); }, 300);
     }
 
-    function fullRender() { updateTypeSelects(); renderClassSelector(); renderClassList(); renderHomeworkList(); }
+    function fullRender() { if(currentClassId && !appData.classes.some(c => c.id === currentClassId)) { currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null; if(currentClassId) localStorage.setItem('currentClassId', currentClassId); else localStorage.removeItem('currentClassId'); }  updateTypeSelects(); renderClassSelector(); renderClassList(); renderHomeworkList(); }
     
     function showWelcomeStep1() {
         document.getElementById('welcome-step-1').classList.remove('hidden');
@@ -2169,7 +2180,7 @@
                     window.showToast("✅ Google 帳號登入成功！", "success");
                 }
             }).catch((error) => {
-                console.error("Login failed", error);
+                        console.error("Login failed", error);
                 if (error.code === 'auth/popup-closed-by-user') {
                     window.showToast("已取消登入", "info");
                 } else {
@@ -2179,21 +2190,29 @@
         });
 
         let tempCheckMode = null;
-        
+
         bindClick('welcome-skip-btn', () => {
+            let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
+            if (name) localStorage.setItem('visitor_name', name.trim());
             localStorage.setItem('storageSelected', 'true');
             showWelcomeStep2();
+            syncUserProfile();
         });
 
         bindClick('welcome-link-btn', async () => {
             if (!window.showSaveFilePicker) { 
                 window.showAlertModal("瀏覽器限制", "瀏覽器不支援本機存取，切換暫存模式。"); 
+                let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
+                if (name) localStorage.setItem('visitor_name', name.trim());
                 localStorage.setItem('storageSelected', 'true');
                 showWelcomeStep2();
+                syncUserProfile();
                 return; 
             } 
             try { 
                 const handle = await window.showSaveFilePicker({ suggestedName: '作業點收資料.json', types: [{ description: 'JSON 檔案', accept: { 'application/json': ['.json'] } }] }); 
+                let name = prompt("請輸入您的使用者暱稱，以便管理員辨別：", "未登入訪客");
+                if (name) localStorage.setItem('visitor_name', name.trim());
                 fileHandle = handle; await saveFileHandle(handle); 
                 const hasData = await syncFromFileHandle(); 
                 if (hasData) isLocalEmptyOnBoot = false;
@@ -2201,6 +2220,7 @@
                 localStorage.setItem('storageSelected', 'true');
                 window.showToast("✅ 已綁定實體檔案", "success");
                 showWelcomeStep2();
+                syncUserProfile();
             } catch(e) { 
                 if (e.name !== 'AbortError') window.showAlertModal("無法連結檔案", e.message); 
             }
@@ -2304,7 +2324,7 @@
 
         bindSubmit('add-class-form', async (e) => {
             e.preventDefault(); const className = document.getElementById('class-name').value.trim();
-            if(className) { appData.classes.push({ id: generateId(), name: className, contactBook: {}, studentBarcodes: {} }); await saveData(); document.getElementById('class-name').value = ''; renderClassSelector(); renderClassList(); if(!currentClassId) { currentClassId = appData.classes[0].id; localStorage.setItem('currentClassId', currentClassId); renderHomeworkList(); } closeModal(document.getElementById('manage-classes-modal')); window.showToast(`新增班級「${className}」！`, "success"); }
+            if(className) { appData.classes.push({ id: generateId(), name: className, contactBook: {}, studentBarcodes: {} }); await saveData(); document.getElementById('class-name').value = ''; renderClassSelector(); renderClassList(); if(appData.classes.length === 1 || !currentClassId || !appData.classes.some(c=>c.id===currentClassId)) { currentClassId = appData.classes[0].id; localStorage.setItem('currentClassId', currentClassId); renderHomeworkList(); } closeModal(document.getElementById('manage-classes-modal')); window.showToast(`新增班級「${className}」！`, "success"); }
         });
 
         const hwListEl = document.getElementById('homework-list');
@@ -2417,6 +2437,4 @@
     }
     
     init();
-</script>
-</body>
-</html>
+</script></body></html>
