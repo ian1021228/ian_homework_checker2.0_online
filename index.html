@@ -1000,7 +1000,6 @@
             updateDataManagementUI();
             
             if (user) {
-                localStorage.removeItem("visitor_name"); localStorage.removeItem("visitor_id");
                 if (user.email === 'ianw.solar@gmail.com') {
                     document.getElementById('admin-btn')?.classList.remove('hidden');
                 } else {
@@ -1251,6 +1250,7 @@ window.showToast = function(message, type = 'success') {
                         await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId)); 
                     } catch(e){}
                     localStorage.removeItem('visitor_id');
+                    localStorage.removeItem('visitor_name');
                 }
             } else {
                 let visitorId = localStorage.getItem('visitor_id');
@@ -2448,6 +2448,8 @@ window.showToast = function(message, type = 'success') {
                     const nextIndex = (currentIndex + 1) % typeConfig.statuses.length;
                     const oldStatus = student.status; const newStatus = typeConfig.statuses[nextIndex].key;
                     hw.students[studentIndex].status = newStatus;
+                    renderStudentGrid(currentHomeworkId);
+                    await saveData();
                 }
             });
         }
