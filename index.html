@@ -941,7 +941,7 @@
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
-    import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, collection, getDocs, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+    import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, collection, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
 
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
@@ -1246,9 +1246,8 @@ window.showToast = function(message, type = 'success') {
                 let visitorId = localStorage.getItem('visitor_id');
                 if (visitorId) {
                     try { 
-                        const { deleteDoc } = await import("https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js");
                         await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId)); 
-                    } catch(e){}
+                    } catch(e){ console.warn("Delete guest profile failed:", e); }
                     localStorage.removeItem('visitor_id');
                     localStorage.removeItem('visitor_name');
                 }
@@ -1861,9 +1860,10 @@ window.showToast = function(message, type = 'success') {
         const count = (hw.students || []).length; if (count === 0) return; 
         updateSummaryUI(hw);
         
-        const containerWidth = studentGrid.parentElement.clientWidth - 20; 
-        const headerHeight = document.querySelector('#detail-page header').offsetHeight || 150;
-        const availableHeight = Math.max(window.innerHeight - headerHeight - 80, 200); 
+        const containerWidth = (studentGrid.parentElement.clientWidth > 0 ? studentGrid.parentElement.clientWidth : window.innerWidth * 0.9) - 20; 
+        const parentH = studentGrid.parentElement.clientHeight;
+        const headerH = document.querySelector('#detail-page header')?.offsetHeight || 150;
+        const availableHeight = (parentH > 100) ? parentH - 16 : Math.max(window.innerHeight - headerH - 80, 200); 
         
         let bestCols = 1; let bestBoxSize = 0;
         for (let c = 1; c <= count; c++) {
@@ -2174,6 +2174,7 @@ window.showToast = function(message, type = 'success') {
         hideAllPages(); const detailPageEl = document.getElementById('detail-page'); if (detailPageEl) detailPageEl.classList.remove('hidden');
         if (!fromHistory) pushPageState({ page: 'detail', id: homeworkId }, '#detail');
         renderStudentGrid(homeworkId); restoreScroll('detail-page');
+        requestAnimationFrame(() => { renderStudentGrid(homeworkId); });
     }
 
     function showStudentDetailsPage(fromHistory = false) {
@@ -2461,9 +2462,18 @@ window.showToast = function(message, type = 'success') {
                     e.preventDefault(); const barcode = scanInput.value.trim(); scanInput.value = '';
                     if (!barcode || !currentClassId || !currentHomeworkId) return;
                     const currentClass = appData.classes.find(c => c.id === currentClassId), hw = appData.homeworks.find(h => h.id === currentHomeworkId);
-                    if (!currentClass || !hw || !currentClass.studentBarcodes) { window.showToast(`目前班級沒有設定任何學生條碼`, "error"); return; }
-                    let foundSeat = null; for (const [seat, code] of Object.entries(currentClass.studentBarcodes)) { if (code === barcode) { foundSeat = parseInt(seat); break; } }
-                    if (!foundSeat) { window.showToast(`找不到條碼 (${barcode}) 對應的學生`, "error"); return; }
+                    if (!currentClass || !hw) return;
+                    let foundSeat = null;
+                    if (currentClass.studentBarcodes) {
+                        for (const [seat, code] of Object.entries(currentClass.studentBarcodes)) { if (code === barcode) { foundSeat = parseInt(seat); break; } }
+                    }
+                    if (!foundSeat) {
+                        const parsedNum = parseInt(barcode, 10);
+                        if (!isNaN(parsedNum) && hw.students.some(s => s.seat === parsedNum)) {
+                            foundSeat = parsedNum;
+                        }
+                    }
+                    if (!foundSeat) { window.showToast(`找不到條碼或座號 (${barcode}) 對應的學生`, "error"); return; }
                     const studentIndex = hw.students.findIndex(s => s.seat === foundSeat); if (studentIndex === -1) { window.showToast(`${foundSeat} 號不在作業名單中`, "error"); return; }
                     const student = hw.students[studentIndex]; const typeConfig = getHomeworkType(hw.typeId);
                     const targetStatusKey = document.getElementById('scan-target-status-select').value;
