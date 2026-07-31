@@ -2469,9 +2469,10 @@ window.showToast = function(message, type = 'success') {
                     const targetStatusKey = document.getElementById('scan-target-status-select').value;
                     const oldStatus = student.status, newStatus = targetStatusKey;
                     hw.students[studentIndex].status = newStatus;
+                    renderStudentGrid(currentHomeworkId);
                     const btn = document.getElementById(`btn-seat-${foundSeat}`); if (btn) { btn.classList.add('scale-[1.1]', 'ring-indigo-400'); setTimeout(() => btn.classList.remove('scale-[1.1]', 'ring-indigo-400'), 250); }
                     const targetStatusText = typeConfig.statuses.find(s => s.key === newStatus)?.text || '已更新';
-                    window.showToast(`${foundSeat} 號更新：${targetStatusText}`, "success"); saveData();
+                    window.showToast(`${foundSeat} 號更新：${targetStatusText}`, "success"); await saveData();
                 }
             });
         }
