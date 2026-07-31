@@ -1252,20 +1252,15 @@ window.showToast = function(message, type = 'success') {
                     localStorage.removeItem('visitor_name');
                 }
             } else {
+                // 未登入訪客不儲存至雲端 userProfiles，若本地有訪客 ID 則一併清理
                 let visitorId = localStorage.getItem('visitor_id');
-                if (!visitorId) {
-                    visitorId = 'guest_' + generateId();
-                    localStorage.setItem('visitor_id', visitorId);
+                if (visitorId) {
+                    try {
+                        await deleteDoc(doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId));
+                    } catch(e){}
+                    localStorage.removeItem('visitor_id');
+                    localStorage.removeItem('visitor_name');
                 }
-                const visitorName = localStorage.getItem('visitor_name') || '未登入訪客';
-                const guestProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', visitorId);
-                await setDoc(guestProfileRef, {
-                    email: null,
-                    displayName: visitorName,
-                    isGuest: true,
-                    lastActive: new Date().toISOString(),
-                    dataSizeKB: currentDataSizeKB
-                }, { merge: true });
             }
         } catch(err) {
             console.warn("syncUserProfile err", err);
@@ -1338,6 +1333,9 @@ window.showToast = function(message, type = 'success') {
                 const data = docSnap.data();
                 const id = docSnap.id;
                 
+                // 後台不會顯示未登入訪客
+                if (data.isGuest || !data.email) return;
+                
                 const isAdminUser = data.email === 'ianw.solar@gmail.com';
                 const isLocked = data.isLocked || false;
                 const statusHtml = isLocked 
@@ -1379,6 +1377,11 @@ window.showToast = function(message, type = 'success') {
                 `;
                 usersList.appendChild(tr);
             });
+
+            if (usersList.children.length === 0) {
+                usersList.innerHTML = '<tr><td colspan="5" class="text-center p-6 text-slate-500 font-bold">無任何已登入用戶資料。</td></tr>';
+                return;
+            }
 
             document.querySelectorAll('.toggle-lock-btn').forEach(btn => {
                 btn.addEventListener('click', async (e) => {
