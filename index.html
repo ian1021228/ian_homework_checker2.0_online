@@ -1690,16 +1690,16 @@ window.showToast = function(message, type = 'success') {
 
     function updateSingleStudentUI(seat, oldStatusKey, newStatusKey, typeConfig) {
         const btn = document.getElementById(`btn-seat-${seat}`); if (!btn) return;
-        const oldStatus = typeConfig.statuses.find(s => s.key === oldStatusKey), newStatus = typeConfig.statuses.find(s => s.key === newStatusKey);
-        if (oldStatus && newStatus) {
-            const oldRingColor = (oldStatus.color || '').replace('bg-', 'ring-').replace('-500', '-200').replace('-400', '-200');
-            const oldClasses = [...(oldStatus.color || '').split(' '), ...(oldStatus.textColor || '').split(' '), `hover:${oldRingColor}`, `focus:${oldRingColor}`].filter(Boolean);
-            btn.classList.remove(...oldClasses);
-            const newRingColor = (newStatus.color || '').replace('bg-', 'ring-').replace('-500', '-200').replace('-400', '-200');
-            const newClasses = [...(newStatus.color || '').split(' '), ...(newStatus.textColor || '').split(' '), `hover:${newRingColor}`, `focus:${newRingColor}`].filter(Boolean);
-            btn.classList.add(...newClasses);
-            const spans = btn.querySelectorAll('span'); if (spans && spans.length > 1) spans[1].textContent = newStatus.text;
-        }
+        const newStatus = typeConfig.statuses.find(s => s.key === newStatusKey) || typeConfig.statuses[0];
+        typeConfig.statuses.forEach(s => {
+            const ring = (s.color || '').replace('bg-', 'ring-').replace('-500', '-200').replace('-400', '-200');
+            const classesToRemove = [...(s.color || '').split(' '), ...(s.textColor || '').split(' '), `hover:${ring}`, `focus:${ring}`].filter(Boolean);
+            btn.classList.remove(...classesToRemove);
+        });
+        const newRingColor = (newStatus.color || '').replace('bg-', 'ring-').replace('-500', '-200').replace('-400', '-200');
+        const newClasses = [...(newStatus.color || '').split(' '), ...(newStatus.textColor || '').split(' '), `hover:${newRingColor}`, `focus:${newRingColor}`].filter(Boolean);
+        btn.classList.add(...newClasses);
+        const spans = btn.querySelectorAll('span'); if (spans && spans.length > 1) spans[1].textContent = newStatus.text;
     }
 
     function updateSummaryUI(hw) {
@@ -1866,9 +1866,10 @@ window.showToast = function(message, type = 'success') {
         updateSummaryUI(hw);
         
         const containerWidth = (studentGrid.parentElement.clientWidth > 0 ? studentGrid.parentElement.clientWidth : window.innerWidth * 0.9) - 20; 
-        const parentH = studentGrid.parentElement.clientHeight;
-        const headerH = document.querySelector('#detail-page header')?.offsetHeight || 150;
-        const availableHeight = (parentH > 100) ? parentH - 16 : Math.max(window.innerHeight - headerH - 80, 200); 
+        const detailPageEl = document.getElementById('detail-page');
+        const detailH = detailPageEl?.clientHeight || window.innerHeight;
+        const headerH = document.querySelector('#detail-page header')?.offsetHeight || 200;
+        const availableHeight = Math.max(detailH - headerH - 50, 200); 
         
         let bestCols = 1; let bestBoxSize = 0;
         for (let c = 1; c <= count; c++) {
@@ -2454,7 +2455,8 @@ window.showToast = function(message, type = 'success') {
                     const nextIndex = (currentIndex + 1) % typeConfig.statuses.length;
                     const oldStatus = student.status; const newStatus = typeConfig.statuses[nextIndex].key;
                     hw.students[studentIndex].status = newStatus;
-                    renderStudentGrid(currentHomeworkId);
+                    updateSingleStudentUI(seat, oldStatus, newStatus, typeConfig);
+                    updateSummaryUI(hw);
                     await saveData();
                 }
             });
@@ -2484,7 +2486,8 @@ window.showToast = function(message, type = 'success') {
                     const targetStatusKey = document.getElementById('scan-target-status-select').value;
                     const oldStatus = student.status, newStatus = targetStatusKey;
                     hw.students[studentIndex].status = newStatus;
-                    renderStudentGrid(currentHomeworkId);
+                    updateSingleStudentUI(foundSeat, oldStatus, newStatus, typeConfig);
+                    updateSummaryUI(hw);
                     const btn = document.getElementById(`btn-seat-${foundSeat}`); if (btn) { btn.classList.add('scale-[1.1]', 'ring-indigo-400'); setTimeout(() => btn.classList.remove('scale-[1.1]', 'ring-indigo-400'), 250); }
                     const targetStatusText = typeConfig.statuses.find(s => s.key === newStatus)?.text || '已更新';
                     window.showToast(`${foundSeat} 號更新：${targetStatusText}`, "success"); await saveData();
