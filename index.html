@@ -954,7 +954,7 @@
     </div>
     
     <!-- 月曆選擇 Modal -->
-    <div id="date-picker-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden z-50 opacity-0">
+    <div id="date-picker-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
         <div id="date-picker-content" class="bg-white rounded-3xl shadow-2xl p-6 w-full max-w-sm transform scale-95">
             <div class="flex items-center justify-between mb-5">
                 <button id="prev-month-btn" class="p-2 rounded-xl hover:bg-slate-100 text-slate-600 transition-colors"><svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg></button>
@@ -1011,7 +1011,7 @@
     </div>
 
     <!-- 確認視窗 Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden confirm-modal z-[110] opacity-0">
+    <div id="confirm-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal confirm-modal z-[110] opacity-0">
         <div class="confirm-modal-content bg-white rounded-2xl shadow-2xl p-6 sm:p-8 w-full max-w-sm transform scale-95 border border-slate-100">
             <h2 id="confirm-title" class="text-xl font-extrabold mb-3 text-slate-900">確定要執行嗎？</h2>
             <p id="confirm-message" class="text-sm text-slate-600 mb-8 leading-relaxed font-medium"></p>
@@ -1041,6 +1041,146 @@
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
     import { getAuth, signInWithPopup, getRedirectResult, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
     import { getFirestore, initializeFirestore, persistentLocalCache, persistentMultipleTabManager, doc, setDoc, getDoc, collection, getDocs, onSnapshot, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+    const DEFAULT_TYPES = [
+        { id: 'default', name: '一般作業', statuses: [ { key: 'not-submitted', text: '未繳交', color: 'bg-slate-200', textColor: 'text-slate-500', isCompleted: false }, { key: 'submitted', text: '已繳交', color: 'bg-blue-500', textColor: 'text-white', isCompleted: true }, { key: 'needs-correction', text: '待訂正', color: 'bg-amber-400', textColor: 'text-amber-950', isCompleted: false }, { key: 'completed', text: '已完成', color: 'bg-emerald-500', textColor: 'text-white', isCompleted: true } ] },
+        { id: 'reading', name: '閱讀作業', statuses: [ { key: 'unread', text: '未閱讀', color: 'bg-slate-200', textColor: 'text-slate-500', isCompleted: false }, { key: 'read', text: '已閱讀', color: 'bg-emerald-500', textColor: 'text-white', isCompleted: true } ] }
+    ];
+
+    const STATUS_COLORS = [ { class: 'bg-slate-200', textClass: 'text-slate-500', name: '灰' }, { class: 'bg-blue-500', textClass: 'text-white', name: '藍' }, { class: 'bg-emerald-500', textClass: 'text-white', name: '綠' }, { class: 'bg-amber-400', textClass: 'text-amber-950', name: '黃' }, { class: 'bg-rose-500', textClass: 'text-white', name: '紅' }, { class: 'bg-purple-500', textClass: 'text-white', name: '紫' } ];
+
+    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
+
+    function safeClone(obj, seen = new WeakSet()) {
+        if (obj === null || typeof obj !== 'object') return obj;
+        if (obj instanceof Date) return new Date(obj.getTime());
+        if (obj instanceof RegExp) return new RegExp(obj.source, obj.flags);
+        if (typeof HTMLElement !== 'undefined' && obj instanceof HTMLElement) return undefined;
+        if (typeof Node !== 'undefined' && obj instanceof Node) return undefined;
+        if (typeof Event !== 'undefined' && obj instanceof Event) return undefined;
+        if (typeof Window !== 'undefined' && obj instanceof Window) return undefined;
+        if (seen.has(obj)) return undefined;
+        
+        seen.add(obj);
+
+        if (Array.isArray(obj)) {
+            const arr = [];
+            for (let i = 0; i < obj.length; i++) {
+                const val = safeClone(obj[i], seen);
+                arr.push(val === undefined ? null : val);
+            }
+            return arr;
+        }
+
+        const copy = {};
+        for (const key of Object.keys(obj)) {
+            if (key.startsWith('$$') || key.startsWith('__')) continue;
+            try {
+                const val = obj[key];
+                if (typeof val === 'function' || typeof val === 'symbol') continue;
+                const cloned = safeClone(val, seen);
+                if (cloned !== undefined) {
+                    copy[key] = cloned;
+                }
+            } catch (e) {}
+        }
+        return copy;
+    }
+
+    function safeStringify(obj) {
+        if (obj === undefined) return undefined;
+        try {
+            const cleaned = safeClone(obj);
+            return JSON.stringify(cleaned);
+        } catch (e) {
+            console.warn("safeStringify fallback:", e);
+            try {
+                if (obj && typeof obj === 'object' && ('classes' in obj || 'homeworks' in obj)) {
+                    return JSON.stringify(safeClone(sanitizeAppData(obj)));
+                }
+            } catch (err2) {}
+            return '{}';
+        }
+    }
+
+    function sanitizeAppData(data) {
+        if (!data || typeof data !== 'object') {
+            return { classes: [], homeworks: [], homeworkTypes: safeClone(DEFAULT_TYPES) };
+        }
+        const cleanClasses = Array.isArray(data.classes) ? data.classes.map(c => {
+            if (!c || typeof c !== 'object') return null;
+            const cleanBarcodes = {};
+            if (c.studentBarcodes && typeof c.studentBarcodes === 'object') {
+                for (const [k, v] of Object.entries(c.studentBarcodes)) {
+                    if (typeof v === 'string' || typeof v === 'number') cleanBarcodes[k] = String(v);
+                }
+            }
+            const cleanContact = {};
+            if (c.contactBook && typeof c.contactBook === 'object') {
+                for (const [date, items] of Object.entries(c.contactBook)) {
+                    if (Array.isArray(items)) {
+                        cleanContact[date] = items.map(item => typeof item === 'string' ? item : (item && item.text ? String(item.text) : String(item || '')));
+                    }
+                }
+            }
+            return {
+                id: String(c.id || generateId()),
+                name: String(c.name || '未命名班級'),
+                lastMaxSeat: typeof c.lastMaxSeat === 'number' ? c.lastMaxSeat : (parseInt(c.lastMaxSeat, 10) || 30),
+                lastMissingSeats: typeof c.lastMissingSeats === 'string' ? c.lastMissingSeats : '',
+                studentBarcodes: cleanBarcodes,
+                contactBook: cleanContact
+            };
+        }).filter(Boolean) : [];
+
+        const cleanHomeworks = Array.isArray(data.homeworks) ? data.homeworks.map(h => {
+            if (!h || typeof h !== 'object') return null;
+            const cleanStudents = Array.isArray(h.students) ? h.students.map(s => {
+                if (!s || typeof s !== 'object') return null;
+                return {
+                    seat: typeof s.seat === 'number' ? s.seat : (parseInt(s.seat, 10) || 1),
+                    status: String(s.status || 'not-submitted')
+                };
+            }).filter(Boolean) : [];
+            return {
+                id: String(h.id || generateId()),
+                classId: String(h.classId || ''),
+                name: String(h.name || '未命名作業'),
+                studentCount: typeof h.studentCount === 'number' ? h.studentCount : cleanStudents.length,
+                typeId: String(h.typeId || 'default'),
+                createdAt: h.createdAt ? (h.createdAt instanceof Date ? h.createdAt.toISOString() : String(h.createdAt)) : new Date().toISOString(),
+                students: cleanStudents
+            };
+        }).filter(Boolean) : [];
+
+        const cleanTypes = Array.isArray(data.homeworkTypes) && data.homeworkTypes.length > 0 ? data.homeworkTypes.map(t => {
+            if (!t || typeof t !== 'object') return null;
+            const cleanStatuses = Array.isArray(t.statuses) ? t.statuses.map(s => {
+                if (!s || typeof s !== 'object') return null;
+                return {
+                    key: String(s.key || 's1'),
+                    text: String(s.text || '狀態'),
+                    color: String(s.color || 'bg-slate-200'),
+                    textColor: String(s.textColor || 'text-slate-500'),
+                    isCompleted: !!s.isCompleted
+                };
+            }).filter(Boolean) : [];
+            return {
+                id: String(t.id || generateId()),
+                name: String(t.name || '種類'),
+                statuses: cleanStatuses.length > 0 ? cleanStatuses : [
+                    { key: 'not-submitted', text: '未繳交', color: 'bg-slate-200', textColor: 'text-slate-500', isCompleted: false },
+                    { key: 'completed', text: '已完成', color: 'bg-emerald-500', textColor: 'text-white', isCompleted: true }
+                ]
+            };
+        }).filter(Boolean) : safeClone(DEFAULT_TYPES);
+
+        return {
+            classes: cleanClasses,
+            homeworks: cleanHomeworks,
+            homeworkTypes: cleanTypes
+        };
+    }
 
     let fbApp, fbAuth, fbDb;
     let currentUser = null;
@@ -1193,14 +1333,7 @@ window.showToast = function(message, type = 'success') {
         confirmOk.addEventListener('click', okHandler);
     }
 
-    const DEFAULT_TYPES = [
-        { id: 'default', name: '一般作業', statuses: [ { key: 'not-submitted', text: '未繳交', color: 'bg-slate-200', textColor: 'text-slate-500', isCompleted: false }, { key: 'submitted', text: '已繳交', color: 'bg-blue-500', textColor: 'text-white', isCompleted: true }, { key: 'needs-correction', text: '待訂正', color: 'bg-amber-400', textColor: 'text-amber-950', isCompleted: false }, { key: 'completed', text: '已完成', color: 'bg-emerald-500', textColor: 'text-white', isCompleted: true } ] },
-        { id: 'reading', name: '閱讀作業', statuses: [ { key: 'unread', text: '未閱讀', color: 'bg-slate-200', textColor: 'text-slate-500', isCompleted: false }, { key: 'read', text: '已閱讀', color: 'bg-emerald-500', textColor: 'text-white', isCompleted: true } ] }
-    ];
-
-    const STATUS_COLORS = [ { class: 'bg-slate-200', textClass: 'text-slate-500', name: '灰' }, { class: 'bg-blue-500', textClass: 'text-white', name: '藍' }, { class: 'bg-emerald-500', textClass: 'text-white', name: '綠' }, { class: 'bg-amber-400', textClass: 'text-amber-950', name: '黃' }, { class: 'bg-rose-500', textClass: 'text-white', name: '紅' }, { class: 'bg-purple-500', textClass: 'text-white', name: '紫' } ];
-
-    let appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(JSON.stringify(DEFAULT_TYPES)) };
+    let appData = { classes: [], homeworks: [], homeworkTypes: safeClone(DEFAULT_TYPES) };
     let adminViewModeUserId = null;
     let adminOriginalAppData = null;
     let currentClassId = localStorage.getItem('currentClassId') || null;
@@ -1337,14 +1470,14 @@ window.showToast = function(message, type = 'success') {
     async function syncUserProfile() {
         if (!fbDb) return;
         try {
-            const fullBytes = new Blob([JSON.stringify(appData)]).size;
+            const fullBytes = new Blob([safeStringify(appData)]).size;
             const currentDataSizeKB = (fullBytes / 1024).toFixed(1);
             
             if (currentUser) {
                 const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', currentUser.uid);
                 await setDoc(userProfileRef, {
-                    email: currentUser.email,
-                    displayName: currentUser.displayName || currentUser.email,
+                    email: currentUser.email || '',
+                    displayName: currentUser.displayName || currentUser.email || '使用者',
                     isGuest: false,
                     lastActive: new Date().toISOString(),
                     dataSizeKB: currentDataSizeKB
@@ -1376,8 +1509,8 @@ window.showToast = function(message, type = 'success') {
     }
 
     async function performRemoteReset() {
-        appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(JSON.stringify(DEFAULT_TYPES)) };
-        localStorage.setItem('homeworkAppData', JSON.stringify(appData));
+        appData = { classes: [], homeworks: [], homeworkTypes: JSON.parse(safeStringify(DEFAULT_TYPES)) };
+        localStorage.setItem('homeworkAppData', safeStringify(appData));
         
         if (fbDb) {
             const uid = currentUser ? currentUser.uid : localStorage.getItem('visitor_id');
@@ -1385,7 +1518,7 @@ window.showToast = function(message, type = 'success') {
                 try {
                     if (currentUser) {
                         const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', uid, 'appData', 'mainDoc');
-                        await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
+                        await setDoc(docRef, { data: safeStringify(appData), updatedAt: new Date().toISOString() });
                     }
                     
                     const userProfileRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'userProfiles', uid);
@@ -1516,7 +1649,7 @@ window.showToast = function(message, type = 'success') {
                         
                         // Back up current admin data if not already done
                         if (!adminViewModeUserId) {
-                            adminOriginalAppData = JSON.stringify(appData);
+                            adminOriginalAppData = safeStringify(appData);
                         }
                         adminViewModeUserId = id;
                         
@@ -1625,8 +1758,6 @@ window.showToast = function(message, type = 'success') {
     async function getFileHandle() { const db = await getDB(); return new Promise((resolve) => { const tx = db.transaction('settings', 'readonly'); const req = tx.objectStore('settings').get('fileHandle'); req.onsuccess = () => resolve(req.result); req.onerror = () => resolve(null); }); }
     async function clearFileHandle() { const db = await getDB(); return new Promise((resolve) => { const tx = db.transaction('settings', 'readwrite'); tx.objectStore('settings').delete('fileHandle'); tx.oncomplete = () => resolve(); }); }
 
-    function generateId() { return Date.now().toString(36) + Math.random().toString(36).substr(2); }
-
     function fixDates(dataObj) {
         if(dataObj && dataObj.homeworks) { dataObj.homeworks.forEach(h => { if (h && h.createdAt && typeof h.createdAt === 'string') h.createdAt = new Date(h.createdAt); }); }
         if (dataObj && dataObj.homeworkTypes) { dataObj.homeworkTypes.forEach(t => { (t.statuses || []).forEach(s => { if (s.color === 'bg-red-500') { s.color = 'bg-rose-500'; s.textColor = 'text-white'; } else if (s.color === 'bg-yellow-500') { s.color = 'bg-amber-400'; s.textColor = 'text-amber-950'; } else if (s.color === 'bg-green-500') { s.color = 'bg-emerald-500'; s.textColor = 'text-white'; } else if (s.color === 'bg-gray-300') { s.color = 'bg-slate-200'; s.textColor = 'text-slate-500'; } }); }); }
@@ -1639,7 +1770,7 @@ window.showToast = function(message, type = 'success') {
         lastBackupTime = now;
         try {
             const today = formatDate(new Date(), 'YYYY-MM-DD'); const backupKey = `hw_backup_${today}`;
-            localStorage.setItem(backupKey, JSON.stringify(appData));
+            localStorage.setItem(backupKey, safeStringify(appData));
             const keys = Object.keys(localStorage).filter(k => k.startsWith('hw_backup_')).sort();
             if (keys.length > 3) keys.slice(0, keys.length - 3).forEach(k => localStorage.removeItem(k));
         } catch (e) {}
@@ -1652,7 +1783,7 @@ window.showToast = function(message, type = 'success') {
         try {
             const targetUid = adminViewModeUserId || currentUser.uid;
             const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', targetUid, 'appData', 'mainDoc');
-            await setDoc(docRef, { data: JSON.stringify(appData), updatedAt: new Date().toISOString() });
+            await setDoc(docRef, { data: safeStringify(appData), updatedAt: new Date().toISOString() });
             lastCloudError = null;
         } catch (error) { console.error("Cloud sync error:", error); lastCloudError = error.message; }
     }
@@ -1664,11 +1795,11 @@ window.showToast = function(message, type = 'success') {
             const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', targetUid, 'appData', 'mainDoc');
             const docSnap = await getDoc(docRef);
             if (docSnap.exists() && docSnap.data().data) {
-                const cloudData = JSON.parse(docSnap.data().data);
+                const cloudData = sanitizeAppData(JSON.parse(docSnap.data().data));
                 if (silent) { 
                     appData = cloudData; 
                     fixDates(appData); 
-                    localStorage.setItem('homeworkAppData', JSON.stringify(appData)); 
+                    localStorage.setItem('homeworkAppData', safeStringify(appData)); 
                     if (!currentClassId && appData.classes.length > 0) {
                         currentClassId = appData.classes[0].id;
                         localStorage.setItem('currentClassId', currentClassId);
@@ -1679,7 +1810,7 @@ window.showToast = function(message, type = 'success') {
                 } 
                 else {
                     showConfirmModal('發現雲端備份', '確定要將本地資料完全覆蓋為雲端上的最新紀錄嗎？這會清除未上傳的本地更動。', () => {
-                        appData = cloudData; fixDates(appData); localStorage.setItem('homeworkAppData', JSON.stringify(appData)); 
+                        appData = cloudData; fixDates(appData); localStorage.setItem('homeworkAppData', safeStringify(appData)); 
                         if (!currentClassId && appData.classes.length > 0) {
                             currentClassId = appData.classes[0].id;
                             localStorage.setItem('currentClassId', currentClassId);
@@ -1704,7 +1835,7 @@ window.showToast = function(message, type = 'success') {
 
         // ⚡ 1. 立即同步寫入 localStorage，客戶端 0 延遲與即時更新
         try {
-            localStorage.setItem('homeworkAppData', JSON.stringify(appData));
+            localStorage.setItem('homeworkAppData', safeStringify(appData));
         } catch (err) {
             console.error("Local storage save error:", err);
         }
@@ -1717,7 +1848,7 @@ window.showToast = function(message, type = 'success') {
                 runAutoBackup();
                 if (typeof fileHandle !== 'undefined' && fileHandle && (await fileHandle.queryPermission({ mode: 'readwrite' })) === 'granted') {
                     const writable = await fileHandle.createWritable();
-                    await writable.write(JSON.stringify(appData));
+                    await writable.write(safeStringify(appData));
                     await writable.close();
                 }
                 await syncDataToCloud();
@@ -1736,9 +1867,9 @@ window.showToast = function(message, type = 'success') {
         try {
             const file = await fileHandle.getFile(); const text = await file.text();
             if (text) { 
-                appData = JSON.parse(text); 
+                appData = sanitizeAppData(JSON.parse(text)); 
                 fixDates(appData); 
-                localStorage.setItem('homeworkAppData', JSON.stringify(appData)); 
+                localStorage.setItem('homeworkAppData', safeStringify(appData)); 
                 runAutoBackup(); 
                 return true; 
             }
@@ -1754,15 +1885,18 @@ window.showToast = function(message, type = 'success') {
         try {
             const file = await fileHandle.getFile(); const text = await file.text();
             if (text) {
-                const newData = JSON.parse(text);
-                if (JSON.stringify(newData) !== JSON.stringify(appData)) { appData = newData; fixDates(appData); localStorage.setItem('homeworkAppData', JSON.stringify(appData)); reRenderCurrentPage(); return true; }
+                const newData = sanitizeAppData(JSON.parse(text));
+                if (safeStringify(newData) !== safeStringify(appData)) { appData = newData; fixDates(appData); localStorage.setItem('homeworkAppData', safeStringify(appData)); reRenderCurrentPage(); return true; }
             }
         } catch (e) {} return false;
     }
 
     function formatDate(date, format) {
-        if (!date || !(date instanceof Date)) return '';
-        const year = date.getFullYear(), month = date.getMonth() + 1, day = date.getDate();
+        if (!date) return '';
+        let d = date;
+        if (!(d instanceof Date)) d = new Date(d);
+        if (isNaN(d.getTime())) return '';
+        const year = d.getFullYear(), month = d.getMonth() + 1, day = d.getDate();
         if (format === 'YYYY-MM-DD') return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         return `${year}/${month}/${day}`;
     }
@@ -1771,9 +1905,9 @@ window.showToast = function(message, type = 'success') {
         if (!currentUser || !fbDb) return;
         const errorMsg = document.getElementById('cloud-error-msg'); if (errorMsg) errorMsg.classList.add('hidden');
         try {
-            const hwStr = JSON.stringify(appData.homeworks || []); const hwBytes = new Blob([hwStr]).size;
-            const cbData = (appData.classes || []).map(c => c.contactBook || {}); const cbBytes = new Blob([JSON.stringify(cbData)]).size;
-            const fullBytes = new Blob([JSON.stringify(appData)]).size; const otherBytes = Math.max(0, fullBytes - hwBytes - cbBytes);
+            const hwStr = safeStringify(appData.homeworks || []); const hwBytes = new Blob([hwStr]).size;
+            const cbData = (appData.classes || []).map(c => c.contactBook || {}); const cbBytes = new Blob([safeStringify(cbData)]).size;
+            const fullBytes = new Blob([safeStringify(appData)]).size; const otherBytes = Math.max(0, fullBytes - hwBytes - cbBytes);
             const maxBytes = 1048576; // 1MB
             
             const hwPct = Math.min(100, (hwBytes / maxBytes) * 100), cbPct = Math.min(100 - hwPct, (cbBytes / maxBytes) * 100), otherPct = Math.min(100 - hwPct - cbPct, (otherBytes / maxBytes) * 100);
@@ -1877,7 +2011,7 @@ window.showToast = function(message, type = 'success') {
                     appData.homeworkTypes.push({
                         id: newTypeId,
                         name: srcType.name,
-                        statuses: JSON.parse(JSON.stringify(srcType.statuses || []))
+                        statuses: JSON.parse(safeStringify(srcType.statuses || []))
                     });
                     typeIdMap[srcType.id] = newTypeId;
                 }
@@ -1888,7 +2022,7 @@ window.showToast = function(message, type = 'success') {
         // 2. 條碼設定處理
         if (syncBarcodes) {
             if (mode === 'overwrite') {
-                targetClass.studentBarcodes = JSON.parse(JSON.stringify(sourceClass.studentBarcodes || {}));
+                targetClass.studentBarcodes = JSON.parse(safeStringify(sourceClass.studentBarcodes || {}));
                 if (sourceClass.lastMaxSeat) targetClass.lastMaxSeat = sourceClass.lastMaxSeat;
             } else {
                 targetClass.studentBarcodes = targetClass.studentBarcodes || {};
@@ -1908,10 +2042,13 @@ window.showToast = function(message, type = 'success') {
         if (syncContact) {
             const srcContact = sourceClass.contactBook || {};
             if (mode === 'overwrite') {
-                targetClass.contactBook = JSON.parse(JSON.stringify(srcContact));
-                Object.values(targetClass.contactBook).forEach(arr => {
-                    contactAddedCount += (arr || []).length;
-                });
+                targetClass.contactBook = {};
+                for (const [dateStr, items] of Object.entries(srcContact)) {
+                    if (Array.isArray(items)) {
+                        targetClass.contactBook[dateStr] = items.map(it => typeof it === 'string' ? it : (it && it.text ? String(it.text) : String(it || '')));
+                        contactAddedCount += targetClass.contactBook[dateStr].length;
+                    }
+                }
             } else {
                 targetClass.contactBook = targetClass.contactBook || {};
                 for (const [dateStr, items] of Object.entries(srcContact)) {
@@ -1920,14 +2057,11 @@ window.showToast = function(message, type = 'success') {
                     }
                     const targetItems = targetClass.contactBook[dateStr];
                     (items || []).forEach(srcItem => {
-                        const srcText = (srcItem.text || '').trim();
-                        const isDup = targetItems.some(ti => (ti.text || '').trim() === srcText);
-                        if (!isDup && srcText) {
-                            targetItems.push({
-                                id: generateId(),
-                                text: srcItem.text,
-                                completed: !!srcItem.completed
-                            });
+                        const rawText = typeof srcItem === 'string' ? srcItem : (srcItem && srcItem.text ? srcItem.text : String(srcItem || ''));
+                        const cleanText = rawText.trim();
+                        const isDup = targetItems.some(ti => (typeof ti === 'string' ? ti.trim() : (ti.text || '').trim()) === cleanText);
+                        if (!isDup && cleanText) {
+                            targetItems.push(rawText);
                             contactAddedCount++;
                         }
                     });
@@ -3021,16 +3155,16 @@ window.showToast = function(message, type = 'success') {
 
         bindClick('export-data-btn', () => {
             const exportHw = document.getElementById('export-hw-chk').checked, exportTypes = document.getElementById('export-types-chk').checked, exportContact = document.getElementById('export-contact-chk').checked;
-            let exportData = JSON.parse(JSON.stringify(appData));
+            let exportData = JSON.parse(safeStringify(appData));
             if (!exportHw) exportData.homeworks = []; if (!exportTypes) exportData.homeworkTypes = DEFAULT_TYPES; 
             if (!exportContact) exportData.classes.forEach(c => c.contactBook = {}); else { const thirtyDaysAgo = new Date(); thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30); const limitDateStr = formatDate(thirtyDaysAgo, 'YYYY-MM-DD'); exportData.classes.forEach(c => { if (c.contactBook) { const filteredBook = {}; for (const [date, items] of Object.entries(c.contactBook)) { if (date >= limitDateStr) filteredBook[date] = items; } c.contactBook = filteredBook; } }); }
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportData)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `作業點收備份_${formatDate(new Date(), 'YYYY-MM-DD')}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); closeModal(document.getElementById('settings-modal')); window.showToast("下載 JSON 備份檔成功！", "success");
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(safeStringify(exportData)); const downloadAnchorNode = document.createElement('a'); downloadAnchorNode.setAttribute("href", dataStr); downloadAnchorNode.setAttribute("download", `作業點收備份_${formatDate(new Date(), 'YYYY-MM-DD')}.json`); document.body.appendChild(downloadAnchorNode); downloadAnchorNode.click(); downloadAnchorNode.remove(); closeModal(document.getElementById('settings-modal')); window.showToast("下載 JSON 備份檔成功！", "success");
         });
 
         bindClick('trigger-import-btn', () => document.getElementById('import-file-input').click());
         bindChange('import-file-input', (e) => {
             const file = e.target.files[0]; if (!file) return; const reader = new FileReader();
-            reader.onload = async (e) => { try { const data = JSON.parse(e.target.result); if(!data.classes || !data.homeworks || !data.homeworkTypes) throw new Error("無效備份格式"); showConfirmModal('覆蓋資料', '確定將 JSON 完整覆蓋目前資料嗎？', async () => { closeModal(document.getElementById('settings-modal')); appData = data; fixDates(appData); localStorage.setItem('homeworkAppData', JSON.stringify(appData)); try { await saveData(); } catch(saveErr) {} window.showToast("資料匯入成功！", "success"); setTimeout(() => window.location.reload(), 500); }); } catch(err) { window.showAlertModal("匯入失敗", err.message); } }; reader.readAsText(file); e.target.value = ''; 
+            reader.onload = async (e) => { try { const data = sanitizeAppData(JSON.parse(e.target.result)); if(!data.classes || !data.homeworks || !data.homeworkTypes) throw new Error("無效備份格式"); showConfirmModal('覆蓋資料', '確定將 JSON 完整覆蓋目前資料嗎？', async () => { closeModal(document.getElementById('settings-modal')); appData = data; fixDates(appData); localStorage.setItem('homeworkAppData', safeStringify(appData)); try { await saveData(); } catch(saveErr) {} window.showToast("資料匯入成功！", "success"); setTimeout(() => window.location.reload(), 500); }); } catch(err) { window.showAlertModal("匯入失敗", err.message); } }; reader.readAsText(file); e.target.value = ''; 
         });
 
         bindSubmit('add-homework-form', async (e) => {
@@ -3154,6 +3288,56 @@ window.showToast = function(message, type = 'success') {
         bindClick('resume-sync-btn', async () => { if (!fileHandle) return; try { if ((await fileHandle.requestPermission({ mode: 'readwrite' })) === 'granted') { document.getElementById('sync-banner').classList.add('hidden'); document.body.classList.remove('has-banner'); await syncFromFileHandle(); reRenderCurrentPage(); window.showToast("已恢復硬碟連線", "success"); } } catch(e) {} });
 
         document.querySelectorAll('.cancel-btn, #close-warning-btn').forEach(btn => btn.addEventListener('click', (e) => closeModal(e.target.closest('.modal'))));
+
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    if (modal.id === 'confirm-modal' || modal.id === 'name-prompt-modal') return;
+                    closeModal(modal);
+                }
+            });
+        });
+
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const openModals = document.querySelectorAll('.modal:not(.hidden)');
+                if (openModals.length > 0) {
+                    const topModal = openModals[openModals.length - 1];
+                    if (topModal.id !== 'name-prompt-modal') {
+                        closeModal(topModal);
+                    }
+                }
+            }
+        });
+
+        let deferredInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredInstallPrompt = e;
+            const installBtn = document.getElementById('install-pwa-btn');
+            if (installBtn) installBtn.classList.remove('hidden');
+        });
+
+        const installBtn = document.getElementById('install-pwa-btn');
+        if (installBtn) {
+            installBtn.addEventListener('click', async () => {
+                if (deferredInstallPrompt) {
+                    deferredInstallPrompt.prompt();
+                    const { outcome } = await deferredInstallPrompt.userChoice;
+                    if (outcome === 'accepted') {
+                        window.showToast("已安裝作業點收系統", "success");
+                    }
+                    deferredInstallPrompt = null;
+                    installBtn.classList.add('hidden');
+                }
+            });
+        }
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            const installBtn = document.getElementById('install-pwa-btn');
+            if (installBtn) installBtn.classList.add('hidden');
+        });
     }
 
     let resizeTimeout = null;
@@ -3168,7 +3352,15 @@ window.showToast = function(message, type = 'success') {
 
     async function init() {
         const localData = localStorage.getItem('homeworkAppData');
-        if (localData) { appData = JSON.parse(localData); fixDates(appData); }
+        if (localData) {
+            try {
+                appData = sanitizeAppData(JSON.parse(localData));
+                fixDates(appData);
+            } catch (err) {
+                console.warn("Failed to parse local storage, initializing default:", err);
+                appData = sanitizeAppData(null);
+            }
+        }
         
         setupButtonEvents(); 
         document.getElementById('loading-page').classList.add('hidden');
