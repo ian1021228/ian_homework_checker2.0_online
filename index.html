@@ -16,6 +16,7 @@
     </script>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     
     <style>
         /* ✨ 縮小所有物件 20% (由預設 100% 縮小至 80%) */
@@ -863,15 +864,55 @@
     </div>
     <!-- 管理班級 Modal -->
     <div id="manage-classes-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-md flex items-center justify-center p-4 hidden modal z-50 opacity-0">
-         <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-md transform scale-95 border border-slate-100">
-            <h2 class="text-2xl font-extrabold mb-6 text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 drop-shadow-sm">管理班級</h2>
-            <form id="add-class-form" class="flex gap-2 mb-6">
-                 <input type="text" id="class-name" class="flex-grow block w-full rounded-xl border-slate-200 bg-slate-50 focus:bg-white shadow-sm p-3 text-sm font-medium transition-colors" required placeholder="例如：六年二班">
-                 <button type="submit" class="bg-indigo-600 text-white font-bold py-3 px-6 text-sm rounded-xl shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">新增班級</button>
+         <div class="modal-content glass-card rounded-3xl shadow-2xl p-6 sm:p-8 w-full max-w-lg transform scale-95 border border-slate-100 max-h-[90vh] overflow-y-auto custom-scrollbar">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-2xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-slate-900 to-slate-600 drop-shadow-sm">管理班級</h2>
+                <span class="text-xs bg-indigo-50 text-indigo-700 font-bold px-2.5 py-1 rounded-lg border border-indigo-100">可設定家長權限碼</span>
+            </div>
+
+            <!-- 新增班級表單 -->
+            <form id="add-class-form" class="space-y-3 mb-6 bg-slate-50/80 p-4 rounded-2xl border border-slate-200/70">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <input type="text" id="class-name" class="flex-grow block w-full rounded-xl border-slate-200 bg-white shadow-xs p-2.5 text-sm font-bold text-slate-800 transition-colors" required placeholder="班級名稱，例：六年二班">
+                    <div class="flex gap-1.5 sm:w-44">
+                        <input type="text" id="class-access-code" class="w-full rounded-xl border-slate-200 bg-white shadow-xs p-2.5 text-xs font-mono font-bold text-indigo-700 transition-colors uppercase tracking-wider" placeholder="權限碼(選填)" maxlength="16">
+                        <button type="button" id="gen-code-btn" title="隨機產生權限碼" class="px-3 py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-xs font-bold transition-colors shrink-0">🎲</button>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-1">
+                    <span class="text-[11px] text-slate-400 font-medium leading-tight">💡 家長在專屬家長端輸入此權限碼即可查看該班作業</span>
+                    <button type="submit" class="w-full sm:w-auto bg-indigo-600 text-white font-bold py-2.5 px-5 text-sm rounded-xl shadow-md shadow-indigo-500/20 hover:bg-indigo-700 hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 whitespace-nowrap">新增班級</button>
+                </div>
             </form>
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3 font-black">現有班級清單</h3>
-            <div id="class-list" class="space-y-2 max-h-60 overflow-y-auto pr-1 custom-scrollbar"></div>
-            <div class="flex justify-end pt-5 mt-5 border-t border-slate-100">
+
+            <div class="flex items-center justify-between mb-3">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider font-black">現有班級與權限碼清單</h3>
+                <span class="text-[11px] text-slate-400 font-medium">支援隨時修改或產生</span>
+            </div>
+            <div id="class-list" class="space-y-2.5 max-h-56 overflow-y-auto pr-1 custom-scrollbar mb-6"></div>
+
+            <!-- 家長端專區 -->
+            <div class="p-4 bg-gradient-to-br from-indigo-50/90 via-purple-50/50 to-pink-50/40 rounded-2xl border border-indigo-100/80 shadow-xs mb-5">
+                <div class="flex items-center gap-2 mb-1.5">
+                    <span class="text-lg">👨‍👩‍👧‍👦</span>
+                    <h4 class="font-black text-slate-800 text-sm">家長端作業與聯絡簿查詢網站</h4>
+                </div>
+                <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                    家長只需進入家長端並輸入對應班級的「班級權限碼」，即可即時查看該班的每日作業、點收狀態與聯絡簿。
+                </p>
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <a id="goto-parent-dashboard-btn" href="https://ian1021228.github.io/ian_homework_checker2.0_online_parent_dashboard/" target="_blank" rel="noopener noreferrer" class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-4 text-xs rounded-xl shadow-md shadow-indigo-500/20 transition-all flex items-center justify-center gap-1.5 text-center">
+                        <span>前往家長端</span>
+                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"></path></svg>
+                    </a>
+                    <button type="button" id="copy-parent-link-btn" class="flex-1 bg-white hover:bg-slate-50 text-indigo-700 border border-indigo-200 font-bold py-2.5 px-4 text-xs rounded-xl shadow-xs transition-all flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>複製家長端連結</span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="flex justify-end pt-3 border-t border-slate-100">
                 <button type="button" class="cancel-btn bg-slate-100 text-slate-600 font-bold py-2.5 px-6 text-sm rounded-xl hover:bg-slate-200 transition-colors">關閉</button>
             </div>
         </div>
@@ -1126,6 +1167,7 @@
             return {
                 id: String(c.id || generateId()),
                 name: String(c.name || '未命名班級'),
+                accessCode: typeof c.accessCode === 'string' ? c.accessCode.trim() : (typeof c.accessCode === 'number' ? String(c.accessCode) : ''),
                 lastMaxSeat: typeof c.lastMaxSeat === 'number' ? c.lastMaxSeat : (parseInt(c.lastMaxSeat, 10) || 30),
                 lastMissingSeats: typeof c.lastMissingSeats === 'string' ? c.lastMissingSeats : '',
                 studentBarcodes: cleanBarcodes,
@@ -1778,12 +1820,59 @@ window.showToast = function(message, type = 'success') {
 
     let lastCloudError = null;
 
+    async function deleteCloudParentClass(code) {
+        if (!fbDb || !code) return;
+        try {
+            const parentDocRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'parentClasses', String(code).trim());
+            await deleteDoc(parentDocRef);
+        } catch (e) {
+            console.warn("Delete parent class from cloud error:", e);
+        }
+    }
+
     async function syncDataToCloud() {
         if (!currentUser || !fbDb) return;
         try {
             const targetUid = adminViewModeUserId || currentUser.uid;
             const docRef = doc(fbDb, 'artifacts', globalAppId, 'users', targetUid, 'appData', 'mainDoc');
             await setDoc(docRef, { data: safeStringify(appData), updatedAt: new Date().toISOString() });
+
+            // 同步所有具備「班級權限碼」的班級至公開家長端資料庫集合
+            if (Array.isArray(appData.classes)) {
+                for (const c of appData.classes) {
+                    if (c && c.accessCode && String(c.accessCode).trim()) {
+                        const code = String(c.accessCode).trim();
+                        const parentDocRef = doc(fbDb, 'artifacts', globalAppId, 'public', 'data', 'parentClasses', code);
+                        const classHomeworks = (appData.homeworks || []).filter(h => h.classId === c.id).map(h => ({
+                            id: h.id,
+                            name: h.name,
+                            typeId: h.typeId || 'default',
+                            createdAt: h.createdAt instanceof Date ? h.createdAt.toISOString() : (h.createdAt || new Date().toISOString()),
+                            studentCount: typeof h.studentCount === 'number' ? h.studentCount : (h.students || []).length,
+                            students: (h.students || []).map(s => ({ seat: s.seat, status: s.status }))
+                        }));
+                        const parentPayload = {
+                            classId: c.id,
+                            className: c.name,
+                            accessCode: code,
+                            lastMaxSeat: typeof c.lastMaxSeat === 'number' ? c.lastMaxSeat : 30,
+                            lastMissingSeats: c.lastMissingSeats || '',
+                            teacherEmail: currentUser.email || '',
+                            teacherName: currentUser.displayName || currentUser.email || '班級導師',
+                            teacherUid: targetUid,
+                            updatedAt: new Date().toISOString(),
+                            homeworks: classHomeworks,
+                            contactBook: c.contactBook || {},
+                            homeworkTypes: safeClone(appData.homeworkTypes || DEFAULT_TYPES)
+                        };
+                        await setDoc(parentDocRef, {
+                            ...parentPayload,
+                            data: safeStringify(parentPayload),
+                            updatedAt: new Date().toISOString()
+                        });
+                    }
+                }
+            }
             lastCloudError = null;
         } catch (error) { console.error("Cloud sync error:", error); lastCloudError = error.message; }
     }
@@ -2229,12 +2318,47 @@ window.showToast = function(message, type = 'success') {
         appData.classes.forEach(c => { const option = document.createElement('option'); option.value = c.id; option.textContent = c.name; if (c.id === currentClassId) option.selected = true; classSelector.appendChild(option); });
     }
 
+    function generateRandomAccessCode() {
+        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+        let code = '';
+        for (let i = 0; i < 6; i++) {
+            code += chars.charAt(Math.floor(Math.random() * chars.length));
+        }
+        return code;
+    }
+
     function renderClassList() {
-        const classListDiv = document.getElementById('class-list'); if(!classListDiv) return; classListDiv.innerHTML = '';
+        const classListDiv = document.getElementById('class-list'); 
+        if(!classListDiv) return; 
+        classListDiv.innerHTML = '';
+        
+        if (appData.classes.length === 0) {
+            classListDiv.innerHTML = '<div class="text-center py-6 text-slate-400 font-medium text-xs">目前尚未建立任何班級</div>';
+            return;
+        }
+
         appData.classes.forEach(c => {
             const classItem = document.createElement('div');
-            classItem.className = 'flex justify-between items-center p-3.5 bg-slate-50 border border-slate-200/60 rounded-xl mb-2 transition-all hover:bg-slate-100/70';
-            classItem.innerHTML = `<span class="font-bold text-slate-800 text-sm">${c.name}</span><button data-id="${c.id}" data-name="${c.name}" class="delete-class-btn text-slate-300 hover:text-rose-500 font-bold p-1 rounded-lg transition-colors text-lg leading-none">&times;</button>`;
+            classItem.className = 'p-3 bg-white border border-slate-200/80 rounded-2xl mb-2.5 shadow-xs transition-all hover:border-indigo-200 group';
+            const code = c.accessCode || '';
+            classItem.innerHTML = `
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div class="flex items-center gap-2 min-w-0">
+                        <span class="w-2.5 h-2.5 rounded-full bg-indigo-500 shrink-0"></span>
+                        <span class="font-black text-slate-800 text-sm truncate" title="${c.name}">${c.name}</span>
+                    </div>
+                    <div class="flex items-center gap-1.5 flex-wrap sm:flex-nowrap">
+                        <div class="flex items-center gap-1 bg-slate-50 border border-slate-200 rounded-xl px-2 py-1 focus-within:border-indigo-400 focus-within:bg-white focus-within:ring-2 focus-within:ring-indigo-500/20 transition-all">
+                            <span class="text-[10px] font-black text-slate-400 uppercase tracking-wider whitespace-nowrap">權限碼</span>
+                            <input type="text" data-class-id="${c.id}" class="class-code-input w-20 sm:w-24 bg-transparent text-xs font-mono font-black text-indigo-700 focus:outline-none uppercase" placeholder="未設定" value="${code}" maxlength="16">
+                            <button type="button" data-class-id="${c.id}" class="save-class-code-btn text-[11px] font-bold text-indigo-600 hover:text-indigo-800 px-1.5 py-0.5 rounded hover:bg-indigo-50 transition-colors whitespace-nowrap" title="儲存權限碼">儲存</button>
+                            <button type="button" data-class-id="${c.id}" class="regen-class-code-btn text-[11px] font-bold text-slate-400 hover:text-slate-700 px-1 py-0.5 rounded hover:bg-slate-200 transition-colors shrink-0" title="隨機產生權限碼">🎲</button>
+                        </div>
+                        ${code ? `<button type="button" data-code="${code}" data-name="${c.name}" class="copy-class-link-btn px-2.5 py-1.5 text-xs bg-indigo-50 hover:bg-indigo-100 text-indigo-700 rounded-xl transition-colors font-bold flex items-center gap-1 shrink-0" title="複製此班級專屬家長直達連結"><i class="fa-solid fa-copy"></i><span class="text-[11px] hidden sm:inline">複製直達</span></button>` : ''}
+                        <button data-id="${c.id}" data-name="${c.name}" class="delete-class-btn text-slate-300 hover:text-rose-500 font-bold p-1.5 rounded-xl hover:bg-rose-50 transition-colors text-lg leading-none shrink-0" title="刪除班級">&times;</button>
+                    </div>
+                </div>
+            `;
             classListDiv.appendChild(classItem);
         });
     }
@@ -3209,9 +3333,46 @@ window.showToast = function(message, type = 'success') {
         bindChange('filter-date-start', renderHomeworkList);
         bindChange('filter-date-end', renderHomeworkList);
 
+        const PARENT_DASHBOARD_URL = 'https://ian1021228.github.io/ian_homework_checker2.0_online_parent_dashboard/';
+
+        bindClick('gen-code-btn', () => {
+            const input = document.getElementById('class-access-code');
+            if (input) input.value = generateRandomAccessCode();
+        });
+
         bindSubmit('add-class-form', async (e) => {
-            e.preventDefault(); const className = document.getElementById('class-name').value.trim();
-            if(className) { appData.classes.push({ id: generateId(), name: className, contactBook: {}, studentBarcodes: {} }); await saveData(); document.getElementById('class-name').value = ''; renderClassSelector(); renderClassList(); if(appData.classes.length === 1 || !currentClassId || !appData.classes.some(c=>c.id===currentClassId)) { currentClassId = appData.classes[0].id; localStorage.setItem('currentClassId', currentClassId); renderHomeworkList(); } closeModal(document.getElementById('manage-classes-modal')); window.showToast(`新增班級「${className}」！`, "success"); }
+            e.preventDefault();
+            const nameInput = document.getElementById('class-name');
+            const codeInput = document.getElementById('class-access-code');
+            const className = nameInput ? nameInput.value.trim() : '';
+            let accessCode = codeInput ? codeInput.value.trim().toUpperCase() : '';
+            if (!accessCode) {
+                accessCode = generateRandomAccessCode();
+            }
+            if(className) {
+                if (accessCode && appData.classes.some(c => c.accessCode && c.accessCode.toUpperCase() === accessCode)) {
+                    window.showToast("⚠️ 權限碼與現有班級重複，已為您隨機產生新權限碼！", "warning");
+                    accessCode = generateRandomAccessCode();
+                }
+                appData.classes.push({ 
+                    id: generateId(), 
+                    name: className, 
+                    accessCode: accessCode,
+                    contactBook: {}, 
+                    studentBarcodes: {} 
+                }); 
+                await saveData(); 
+                if (nameInput) nameInput.value = ''; 
+                if (codeInput) codeInput.value = '';
+                renderClassSelector(); 
+                renderClassList(); 
+                if(appData.classes.length === 1 || !currentClassId || !appData.classes.some(c=>c.id===currentClassId)) { 
+                    currentClassId = appData.classes[0].id; 
+                    localStorage.setItem('currentClassId', currentClassId); 
+                    renderHomeworkList(); 
+                } 
+                window.showToast(`新增班級「${className}」(權限碼：${accessCode})！`, "success"); 
+            }
         });
 
         const hwListEl = document.getElementById('homework-list');
@@ -3223,8 +3384,130 @@ window.showToast = function(message, type = 'success') {
         });
         
         const classListEl = document.getElementById('class-list');
-        if(classListEl) classListEl.addEventListener('click', (e) => {
-             if (e.target.closest('.delete-class-btn')) { e.stopPropagation(); const btn = e.target.closest('.delete-class-btn'); const classId = btn.dataset.id; const className = btn.dataset.name; showConfirmModal('移除班級', `確定移除「${className}」嗎？將會擦除所有記錄！`, async () => { appData.classes = appData.classes.filter(c => c.id !== classId); appData.homeworks = appData.homeworks.filter(h => h.classId !== classId); if(currentClassId === classId) { currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null; if(currentClassId) localStorage.setItem('currentClassId', currentClassId); else localStorage.removeItem('currentClassId'); } await saveData(); renderClassSelector(); renderClassList(); renderHomeworkList(); window.showToast("已移除班級", "info"); }); }
+        if(classListEl) {
+            classListEl.addEventListener('click', async (e) => {
+                const deleteBtn = e.target.closest('.delete-class-btn');
+                if (deleteBtn) {
+                    e.stopPropagation();
+                    const classId = deleteBtn.dataset.id;
+                    const className = deleteBtn.dataset.name;
+                    const targetClass = appData.classes.find(c => c.id === classId);
+                    const oldCode = targetClass ? targetClass.accessCode : '';
+                    showConfirmModal('移除班級', `確定移除「${className}」嗎？將會擦除所有記錄！`, async () => {
+                        if (oldCode) await deleteCloudParentClass(oldCode);
+                        appData.classes = appData.classes.filter(c => c.id !== classId);
+                        appData.homeworks = appData.homeworks.filter(h => h.classId !== classId);
+                        if(currentClassId === classId) {
+                            currentClassId = appData.classes.length > 0 ? appData.classes[0].id : null;
+                            if(currentClassId) localStorage.setItem('currentClassId', currentClassId);
+                            else localStorage.removeItem('currentClassId');
+                        }
+                        await saveData();
+                        renderClassSelector();
+                        renderClassList();
+                        renderHomeworkList();
+                        window.showToast("已移除班級", "info");
+                    });
+                    return;
+                }
+
+                const regenBtn = e.target.closest('.regen-class-code-btn');
+                if (regenBtn) {
+                    e.stopPropagation();
+                    const classId = regenBtn.dataset.classId;
+                    const input = classListEl.querySelector(`.class-code-input[data-class-id="${classId}"]`);
+                    if (input) {
+                        input.value = generateRandomAccessCode();
+                        input.focus();
+                    }
+                    return;
+                }
+
+                const saveBtn = e.target.closest('.save-class-code-btn');
+                if (saveBtn) {
+                    e.stopPropagation();
+                    const classId = saveBtn.dataset.classId;
+                    const input = classListEl.querySelector(`.class-code-input[data-class-id="${classId}"]`);
+                    if (input) {
+                        const newCode = input.value.trim().toUpperCase();
+                        const cls = appData.classes.find(c => c.id === classId);
+                        if (cls) {
+                            const oldCode = cls.accessCode;
+                            if (newCode && appData.classes.some(c => c.id !== classId && c.accessCode && c.accessCode.toUpperCase() === newCode)) {
+                                window.showToast("⚠️ 此權限碼已被其他班級使用！", "error");
+                                return;
+                            }
+                            if (oldCode && oldCode !== newCode) {
+                                await deleteCloudParentClass(oldCode);
+                            }
+                            cls.accessCode = newCode;
+                            await saveData();
+                            renderClassList();
+                            window.showToast(newCode ? `已設定「${cls.name}」權限碼：${newCode}` : `已清除「${cls.name}」權限碼`, "success");
+                        }
+                    }
+                    return;
+                }
+
+                const copyLinkBtn = e.target.closest('.copy-class-link-btn');
+                if (copyLinkBtn) {
+                    e.stopPropagation();
+                    const code = copyLinkBtn.dataset.code;
+                    const name = copyLinkBtn.dataset.name;
+                    const link = `${PARENT_DASHBOARD_URL}?code=${encodeURIComponent(code)}`;
+                    try {
+                        await navigator.clipboard.writeText(link);
+                        window.showToast(`✅ 已複製「${name}」家長直達連結！`, "success");
+                    } catch (err) {
+                        const temp = document.createElement('input');
+                        temp.value = link;
+                        document.body.appendChild(temp);
+                        temp.select();
+                        document.execCommand('copy');
+                        document.body.removeChild(temp);
+                        window.showToast(`✅ 已複製「${name}」家長直達連結！`, "success");
+                    }
+                    return;
+                }
+            });
+
+            classListEl.addEventListener('keydown', async (e) => {
+                if (e.key === 'Enter' && e.target.classList.contains('class-code-input')) {
+                    e.preventDefault();
+                    const classId = e.target.dataset.classId;
+                    const newCode = e.target.value.trim().toUpperCase();
+                    const cls = appData.classes.find(c => c.id === classId);
+                    if (cls) {
+                        const oldCode = cls.accessCode;
+                        if (newCode && appData.classes.some(c => c.id !== classId && c.accessCode && c.accessCode.toUpperCase() === newCode)) {
+                            window.showToast("⚠️ 此權限碼已被其他班級使用！", "error");
+                            return;
+                        }
+                        if (oldCode && oldCode !== newCode) {
+                            await deleteCloudParentClass(oldCode);
+                        }
+                        cls.accessCode = newCode;
+                        await saveData();
+                        renderClassList();
+                        window.showToast(newCode ? `已設定「${cls.name}」權限碼：${newCode}` : `已清除「${cls.name}」權限碼`, "success");
+                    }
+                }
+            });
+        }
+
+        bindClick('copy-parent-link-btn', async () => {
+            try {
+                await navigator.clipboard.writeText(PARENT_DASHBOARD_URL);
+                window.showToast("✅ 已複製家長端連結！", "success");
+            } catch (err) {
+                const temp = document.createElement('input');
+                temp.value = PARENT_DASHBOARD_URL;
+                document.body.appendChild(temp);
+                temp.select();
+                document.execCommand('copy');
+                document.body.removeChild(temp);
+                window.showToast("✅ 已複製家長端連結！", "success");
+            }
         });
 
         const studentDetailsList = document.getElementById('student-details-list');
